@@ -1,0 +1,2 @@
+﻿package com.topspin.api.logging {	import flash.display.DisplayObject;
+	import flash.display.LoaderInfo;		public interface ILogger {		function applicable ( app : Number ) : Boolean;				function setEnv ( env : LoaderInfo = null, logUrl : String = null, appRoot : DisplayObject = null, gaTrackerId : String = null, debugMode : Boolean = false) : void;				function send ( parameters : Object ) : void;	}	}
