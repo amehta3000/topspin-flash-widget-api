@@ -4,6 +4,7 @@ package com.topspin.api.data
 	
 	public interface ITSWidget extends IEventDispatcher
 	{
+		
 		/*-----------INTITIALIZATION-----------*/
 		/**
 		 * Returns the version of the widget 
@@ -13,13 +14,17 @@ package com.topspin.api.data
 		function getVersion() : String;
 		/**
 		 * Registers widget id with the proxy
-		 * Initiates the loading and parsing of the widget_id and 
- 		 * will fire TSWidgetEvent.WIDGET_LOAD_COMPLETE when finished
+		 * Will initiate the loading and parsing of the widget_id
 		 * 
 		 * @param widget_id String id found in the widget embed code from the Topspin widget spin. 
 		 * @param production_mode Boolean : Setting to true enables Topspin logging for in application metrics  
-		 */ 		
-		function registerWidgetId( widget_id : String, production_mode : Boolean = false ) : void
+		 * @param event_source : Number - Topspin internal usage for the event logger.  
+		 * 						By default, event_source will be com.topsin.api.logging.TSApplications.CUSTOM_API_PLAYER
+		 * 						Internal topspin widgets will set this to whatever widget type it is.  
+		 * 						Dev partners may want to leave it as -1.
+		 * 						@see com.topspin.api.logging.TSApplications 
+		 */ 
+		function registerWidgetId( widget_id : String, production_mode : Boolean = false, event_source : Number = -1) : void
 		/*-----------GENERAL ACCESSORS -----------*/			
 		/**
 		 * Return the artist id from the campaign 
@@ -150,7 +155,17 @@ package com.topspin.api.data
 		 * @return String url
 		 * 
 		 */		
-		function getE4MPostURL( campaign_id : String = null ) : String; 				
+		function getE4MPostURL( campaign_id : String = null ) : String; 		
+		/**
+		 * E4M Specific: 
+		 * Returns whether the E4M is an email in exchange for
+		 * media or simply and email submission for subscription.
+		 * Useful for returning descriptive messaging about the
+		 * campaign 
+		 * @return Boolean
+		 * 
+		 */		
+		function isE4MEmailOnly( campaign_id : String = null ) : Boolean; 		
 		/**
 		 * E4M Specific:  
 		 * Returns artist specific underage messaging 
@@ -193,6 +208,13 @@ package com.topspin.api.data
 								  email : String,  
 								  confirmation_target : String = null,
 								  date_of_birth : Date = null ) : void;		
-
+		/**
+		 * Access to the underlying XML structure this api
+		 * uses as the Data Model 
+		 * @param campaign_id 
+		 * @return XML
+		 * 
+		 */		
+		function widgetData( campaign_id : String = null ) : XML
 	}
 }

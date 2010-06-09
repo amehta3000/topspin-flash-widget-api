@@ -1,0 +1,64 @@
+Copyright (c) 2010, Topspin Media Inc.
+All rights reserved.
+
+=== Topspin Flash AS3 Widget API and Source Code ===
+Contributors: amehta@topspinmedia.com
+Tags: flash, api, topspin, music
+Last Modified:  06/08/2010
+
+== Topspin Flash Widget API, Source Code, Examples ==
+The Flash Widget API can be used to create custom widgets using the widget data 
+created in the Topspin platform.  The API abstracts data event logging from the 
+development so that focus can be placed on building advanced custom widgets
+while still reporting valuable widget metrics to the Topspin client. 
+
+Currently, there are three types of widgets that this TSAPI supports, 
+source code for each of the widget soon to be added:
+
+    * Streaming Player
+    * Single Track Player
+    * Email For Media 
+
+In addition to the API, source code to in house Topspin widgets will be made
+available and may be repurposed for your needs, these widgets will live in the
+folder, TSWidgets.     
+
+As a convenience, the folder, Thirdparty, includes the following AS3 packages which 
+are used in the widgets for tweening, Google analytics, JSON, Twitter api, and misc utilities.  
+    * GreenSock TweenLite : http://www.greensock.com/tweenlite/
+    * Adobe core lib : http://code.google.com/p/as3corelib/
+    * Twitter API for Flash : http://blog.twitter.com/2006/10/twitter-api-for-flash-developers.html
+    * Google Analytics : analytics.swc
+
+== Requirements ==
+    * Flash compiler such as:  Adobe Flex Builder, Flash Builder, Flash CS4, FDT
+
+
+== Installation ==
+In general to create a Topspin widget, the only package that is required is the
+TSAPI folder which contain the api package:  com.topspin.api
+
+Download the folder and contents and add the package to you classpath when compiling
+your widgets.  More information and documentation can be found in the Topspin
+knowledgebase:  https://docs.topspin.net/tiki-index.php?page=Flash+Widget+API/
+
+
+
+== Support/Contact ==
+
+This code is provided as-is, without any warranty expressed or implied.
+
+Bug reports and suggestions: [Topspin - Get Satisfaction] (http://getsatisfaction.com/topspin/ "Topspin - Get 
+Satisfaction")
+
+[Topspin](http://www.topspin.net/ "Topspin")
+[Topspin Flash Widget Documentation](https://docs.topspin.net/tiki-index.php?page=Flash+Widget+API/ "Flash Widget API Documentation")
+
+== Changelog ==
+
+= 1.0.1 =
+* First committed version
+
+= 1.0.2 =
+* Updated WidgetApiPlayground code
+
