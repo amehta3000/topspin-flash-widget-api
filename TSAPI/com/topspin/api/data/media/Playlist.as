@@ -68,6 +68,7 @@ package com.topspin.api.data.media
 			_playlistMap = new Dictionary();
 			_playlistOrder = new Array();
 			_currentPlaylistIndex = 0;
+			trace("Playlist: _currentPlaylistIndex = " + _currentPlaylistIndex);
 		}	
 		/**
 		 * Sets the xml data to be parsed via the 
@@ -77,7 +78,7 @@ package com.topspin.api.data.media
 		 */		
 		public function load( _xml : XML ): void
 		{
-			trace(NAME + ": load: " + _xml);
+//			trace(NAME + ": load: " + _xml);
 			_tsAdapter.parse(_xml);
 		}
 

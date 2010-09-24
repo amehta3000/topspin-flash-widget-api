@@ -23,11 +23,26 @@ package com.topspin.api.data.media
 	{
 		private var _id : String;
 		private var _imageURL : String;
+		
+		//Sizes
+		private var _small : String;
+		private var _medium : String;
+		private var _large : String;
+		private var _source : String;
+		
 		private var _title : String;
+		
+		
 		private var _width : Number;
 		private var _height : Number;
 		
-		public function ImageData() {}
+		public function ImageData( imageXML : XML = null) 
+		{
+			if (imageXML != null)
+			{
+				parse(imageXML);
+			}
+		}
 		/*******************************************
 		 ** GETTER SETTERS                       
 		 ******************************************/
@@ -73,5 +88,49 @@ package com.topspin.api.data.media
 		public function set height(o:Number):void {
 			_height = o;
 		}		
+		
+		public function get small():String {
+			return _small;
+		}
+		
+		public function set small(o:String):void {
+			_small = o;
+		}		
+		public function get medium():String {
+			return _medium;
+		}
+		
+		public function set medium(o:String):void {
+			_medium = o;
+		}		
+		public function get large():String {
+			return _large;
+		}
+		
+		public function set large(o:String):void {
+			_large = o;
+		}		
+		public function get source():String {
+			return _source;
+		}
+		
+		public function set source(o:String):void {
+			_source = o;
+		}				
+		private function parse( _xml : XML ) : void
+		{
+			_id = _xml.id;
+			_title = _xml .title;
+			_small = _xml.small;
+			_medium = _xml.medium;
+			_large = _xml.large;
+			_source = _xml.source;
+			
+			//default large to the imageURL
+			//Changed to source on Setp 23, 2010
+			_imageURL = _xml.source;
+			
+		}
+		
 	}
 }

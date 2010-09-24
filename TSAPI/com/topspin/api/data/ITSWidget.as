@@ -1,5 +1,7 @@
 package com.topspin.api.data
 {
+	import com.topspin.api.data.media.ImageData;
+	
 	import flash.events.IEventDispatcher;
 	
 	public interface ITSWidget extends IEventDispatcher
@@ -33,17 +35,48 @@ package com.topspin.api.data
 		 */		
 		function getArtistId( campaign_id : String = null ) : String;
 		/**
+		 * Return Artist Google Analytics tracking UID for use with
+		 * Google Analytics 
+		 * @param campaign_id
+		 * @return Google Analytics tracking UID
+		 * 
+		 */
+		function getArtistGATrackingId( campaign_id : String = null ) : String;
+		/**
+		 * Return the Artist's record Label if applicable, used specifically
+		 * for COPPA Compliant partners, such as Sony
+		 * @return String - artist record label
+		 * 
+		 */		
+		function getArtistLabel( campaign_id : String = null ) : String;			
+		/**
 		 * Return the artist name from the campaign 
 		 * @return String - artist name
 		 * 
 		 */		
 		function getArtistName( campaign_id : String = null ) : String;		
 		/**
+		 * Returns Artist Awesm API key if applicable, if not, will 
+		 * return the Topspin key used to awesmize links. 
+		 * @param campaign_id
+		 * @return Awesm API key
+		 * 
+		 */		
+		function getAwesmAPIKey( campaign_id : String = null ) : String;		
+		/**
 		 * Return the campaign if of the widget 
 		 * @return String - campaign id
 		 * 
 		 */		
 		function getCampaignId() : String;
+		/**
+		 * Returns the base embed code of the widget found in the
+		 * widget_id XML 
+		 * @param campaign_id
+		 * @return embed code
+		 * 
+		 */		
+		function getEmbedCode( campaign_id : String = null ) : String;		
 		/**
 		 * Returns the flickrId specified by the Artist for
 		 * slide show images  
@@ -97,6 +130,12 @@ package com.topspin.api.data
 		 */		
 		function getPosterThumbnailURL( campaign_id : String = null ) : String;	
 		/**
+		 * Will pull the ImageData object from the Single display image selected at Spin time. 
+		 * @return ImageData object with multiple image sizes
+		 * 
+		 */
+		function getPosterImageData( campaign_id : String = null) : ImageData;
+		/**
 		 * Will pull the image from the Single display image selected at Spin time. 
 		 * Pass in the size string to retrieve a particular size.
 		 * @param size:  small || medium || large
@@ -105,13 +144,26 @@ package com.topspin.api.data
 		 */
 		function getPosterImageURL( campaign_id : String = null, size : String = "large") : String;				
 		/**
+		 * Return and Array of ImageData objects found in the package and Single Display Image
+		 * included in the spin 
+		 * @return Array of urls
+		 * 
+		 */		
+		function getAllProductImageData( campaign_id : String = null) : Array;			
+		/**
 		 * Given a size, will return all images found in the package and Single Display Image
 		 * included in the spin 
 		 * @param size: small || medium || large
 		 * @return Array of urls
 		 * 
 		 */		
-		function getProductImageURLs( campaign_id : String = null, size : String = "large") : Array;		
+		function getAllProductImageURLs( campaign_id : String = null, size : String = "large") : Array;	
+		/**
+		 * Returns the non CDN widget id
+		 * @return String actual widget id pointing to app.topspin.net
+		 * 
+		 */			
+		function getWidgetId( campaign_id : String = null ) : String;
 		/**
 		 * Returns the 3 different types of widgets represented by
 		 * the widget_id: 
@@ -128,6 +180,13 @@ package com.topspin.api.data
 		 * 
 		 */				
 		function getE4MConfirmationTarget( campaign_id : String = null ) : String;
+		/**
+		 * E4M Specific: 
+		 * Returns the Date of Birth messaging set up by artist
+		 * @return String
+		 * 
+		 */				
+		function getE4MDOBMessage( campaign_id : String = null ) : String;		
 		/**
 		 * E4M Specific: 
 		 * COPPA Regulation for minimum age requirement for E4M campaigns
@@ -180,6 +239,26 @@ package com.topspin.api.data
 		 * 
 		 */				
 		function isE4MDOBRequired( campaign_id : String = null ) : Boolean;
+		/**
+		 * E4M Specific: 
+		 * Retreives the custom link url for E4M
+		 * @return String
+		 * 
+		 */	
+		function getCustomLinkUrl(campaign_id : String = null ) : String
+		/**
+		 * E4M Specific: 
+		 * Retreives the custom link label for E4M
+		 * @return String
+		 * 
+		 */			
+		function getCustomLinkLabel(campaign_id : String = null ) : String
+		/**
+		 * Retreives the privacy url for E4M
+		 * @return String
+		 * 
+		 */		
+		function getPrivacyUrl( campaign_id : String = null ) : String;					
 		/**
 		 * Indicates whether sharing is enabled or not, as specificed in the MGR 
 		 * @return Boolean

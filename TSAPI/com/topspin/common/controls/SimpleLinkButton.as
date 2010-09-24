@@ -276,7 +276,10 @@ package com.topspin.common.controls
 			
 			draw();
 			outShape.graphics.clear();	
-			outShape.graphics.lineStyle(this._borderThickness, _borderOverColor, (_includeBorder) ? 1 : 0, true);
+			if (_includeBorder)
+			{	
+				outShape.graphics.lineStyle(this._borderThickness, _borderOverColor, 1 , true);
+			}
 			outShape.graphics.beginFill(_bgOverColor, this._bgOverAlpha);			
 			if (inited && this._preserveSize) {
 				outShape.graphics.drawRoundRect(0, 0, _width, _height, _curve);				
@@ -296,7 +299,10 @@ package com.topspin.common.controls
 		private function draw():void {
 
 				outShape.graphics.clear();	
-				outShape.graphics.lineStyle(this._borderThickness, uint(_borderOutColor), ((this._includeBorder) ? 1 : 0), true);
+				if (_includeBorder)
+				{	
+					outShape.graphics.lineStyle(this._borderThickness, uint(_borderOutColor), 1 , true);
+				}
 				outShape.graphics.beginFill(uint(_bgColor), this._bgAlpha);
 				if (inited && this._preserveSize) {
 					outShape.graphics.drawRoundRect(0, 0, _width, _height, _curve);				

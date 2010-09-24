@@ -255,7 +255,7 @@ package com.topspin.api.data.media
 				return _sound.bytesTotal;
 			}else{
 				return 0;
-			}				
+			}			
 		}		
 		/**
 		 * Duration is returned in milliseconds 

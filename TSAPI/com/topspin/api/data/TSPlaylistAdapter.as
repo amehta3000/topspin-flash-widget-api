@@ -238,7 +238,9 @@ package com.topspin.api.data
 			t.title = tsData.title;
 			t.mediaURL = tsData.stream_mp3_url;
 			t.mediaType = Track.MEDIA_TYPE_AUDIO;
-			t.duration = parseInt(tsData.total_duration_in_seconds) * 1000;
+			//Default to 3 minutes if no data is found.
+			var duration_in_seconds : Number = (tsData.total_duration_in_seconds.length() && tsData.total_duration_in_seconds != null) ? parseInt(tsData.total_duration_in_seconds) : 180;
+			t.duration = duration_in_seconds * 1000;
 			t.initPlaylistIndex = t.playlistIndex  = listIndex;
 			t.imageURL = tsData.image_url;
 			if (tsData.image.length())
@@ -266,7 +268,9 @@ package com.topspin.api.data
 			t.title = tsData.title;
 			t.mediaURL = tsData.flv;
 			t.mediaType = Track.MEDIA_TYPE_VIDEO;
-			t.duration = parseInt(tsData.total_duration_in_seconds) * 1000;
+			//Default to 3 minutes if no data is found.
+			var duration_in_seconds : Number = (tsData.total_duration_in_seconds.length() && tsData.total_duration_in_seconds != null) ? parseInt(tsData.total_duration_in_seconds) : 180;
+			t.duration = duration_in_seconds * 1000;
 			t.h264_large_URL = tsData.h264.large;
 			t.h264_small_URL = tsData.h264.small;
 			t.initPlaylistIndex = t.playlistIndex  = listIndex;
