@@ -421,7 +421,7 @@ package com.topspin.common.controls {
 		 */
 		public function startShow():void {
 			if (!slideData) {
-//				trace("startShow : not slideData so add DELAYED_START listener");
+				trace("startShow : not slideData so add DELAYED_START listener");
 //				addEventListener(DELAYED_START, handleDelayedStart);
 				return;
 			}
@@ -469,6 +469,7 @@ package com.topspin.common.controls {
 		 */		
 		private function loadSlide():void {
 			startTimer(false);
+
 			selectedImageData = slideData[currentIndex];
 
 			if (slideMap[selectedImageData.id] == null) {

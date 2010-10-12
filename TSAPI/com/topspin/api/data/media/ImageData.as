@@ -128,7 +128,7 @@ package com.topspin.api.data.media
 			
 			//default large to the imageURL
 			//Changed to source on Setp 23, 2010
-			_imageURL = _xml.source;
+			_imageURL = _xml.large;
 			
 		}
 		
