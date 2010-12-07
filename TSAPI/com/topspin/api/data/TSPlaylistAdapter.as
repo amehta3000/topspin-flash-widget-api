@@ -277,11 +277,11 @@ package com.topspin.api.data
 			t.width = tsData.width;		
 			t.height = tsData.height;
 			t.imageURL = tsData.image_url;
-			if (tsData.image_product.length() && tsData.image_url == null)
+			if (tsData.image_product.length() )
 			{
 				var data : String;
-				data = tsData.image_product.medium;
-				if (data == null || data.length == 0) data = tsData.image_product.large;
+				data = tsData.image_product.large;
+				if (data == null || data.length == 0) data = tsData.image_product.medium;
 				if (data == null || data.length == 0) data = tsData.image_product.small;	
 				
 				if (data) {

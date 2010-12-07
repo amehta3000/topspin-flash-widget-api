@@ -341,11 +341,11 @@ package com.topspin.api
 			var imgIdMap : Dictionary = new Dictionary();
 			var id : String;
 			var url : String;
-			var imageDataArray : Array;
+			var imageDataArray : Array = new Array();
 			var imagesXML : XMLList = widgetData(campaign_id)..image;
 			if (imagesXML.length())
 			{
-				imageDataArray = new Array();
+//				imageDataArray = new Array();
 				for each (var image : XML in imagesXML ) 
 				{	
 					id = image.id;	
@@ -353,7 +353,6 @@ package com.topspin.api
 						var imgData : ImageData = new ImageData(image);
 						imageDataArray.push(imgData);
 						imgIdMap[id] = imgData;
-						//						log("getProductImageData: " + imgData);						
 					}
 				}
 			}
@@ -517,9 +516,9 @@ package com.topspin.api
 		{
 			var wd : XML = widgetData(campaign_id);
 			if(wd && (wd.media.length() > 0)) {
-				return true;
-			} else {
 				return false;
+			} else {
+				return true;
 			}
 		} 			
 		/**
@@ -619,18 +618,28 @@ package com.topspin.api
 			}else{
 				_isSubmitting = true;
 			}
+			
+			//Let the view manage this and not make the API concern itself
+//			if (isE4MDOBRequired(campaign_id) && !date_of_birth)
+//			{
+//				trace("DOB is required but not provided, get DOB");
+//				dispatchEvent(new E4MEvent(E4MEvent.DOB_NULL_BUT_REQUIRED, null, getE4MDOBMessage(campaign_id)));
+//				_isSubmitting = false;
+//				return;				
+//			}
+//			if (isE4MDOBRequired(campaign_id) && !validateEmailDOB( date_of_birth ))
+//			{
+//				dispatchEvent(new E4MEvent(E4MEvent.UNDERAGE_ERROR, null, getE4MUnderageMessage(campaign_id)));																	
+//				_isSubmitting = false;
+//				return;
+//			}			
 			if (!validateEmail(email))
 			{	
 				dispatchEvent(new E4MEvent(E4MEvent.EMAIL_ERROR, null,"Please enter a valid email address."));
 				_isSubmitting = false;
 				return;
 			}
-			if (isE4MDOBRequired(campaign_id) && !validateEmailDOB( date_of_birth ))
-			{
-				dispatchEvent(new E4MEvent(E4MEvent.UNDERAGE_ERROR, null, getE4MUnderageMessage(campaign_id)));																	
-				_isSubmitting = false;
-				return;
-			}
+
 			var _confirmation_target : String = (confirmation_target) ? confirmation_target : getE4MConfirmationTarget(campaign_id);
 			
 			var fanXML:XML = <fan />;
@@ -638,7 +647,7 @@ package com.topspin.api
 			fanXML["confirmation-target"] = _confirmation_target;
 			fanXML["email"] = email;
 			fanXML["referring-url"] = EventLogger.getPageURL(); 
-			if (isE4MDOBRequired(campaign_id))
+			if (date_of_birth)
 			{
 				fanXML["dob"] = date_of_birth;
 			}
@@ -676,78 +685,7 @@ package com.topspin.api
 				dispatchEvent(new E4MEvent(E4MEvent.EMAIL_ERROR, null, "Sorry, we cannot reach the server to submit your request."));						
 			}
 		}
-		//		/**
-		//		 * Method to share the widget to a page that is specified by the offer url 
-		//		 * @param senderAddress
-		//		 * @param recipientAddress - comma delimited list of email, max 25
-		//		 * @param message
-		//		 * @param subscribeToArtist : Boolean indicates that the sharer wants to also subscribe the
-		//		 * 				artist email list.
-		//		 * 
-		//		 */		
-		//		public function shareEmailMessage( 	campaign_id : String,
-		//											senderAddress : String, 
-		//											recipientAddress : String, 
-		//											message : String, 
-		//											subscribeToArtist : Boolean = false) : void {
-		//												
-		//			if (_widgetType == WIDGET_TYPE_E4M)
-		//			{
-		//				throw new TSWidgetError("Invalid widget type for api method: shareEmailMessage.");
-		//				return;
-		//			}									
-		//												
-		//			var loader : URLLoader = new URLLoader();
-		//			loader.addEventListener(Event.COMPLETE, handleShareEmail);
-		//			loader.addEventListener(IOErrorEvent.IO_ERROR, onErrorHandler);
-		//			loader.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSecurityError);
-		//			
-		//			var shareUrl : String = widgetData(campaign_id).share_url;
-		//			
-		//			var request:URLRequest = new URLRequest(shareUrl);
-		//			    request.method = URLRequestMethod.POST;
-		//
-		//			var variables:URLVariables = new URLVariables();
-		//			    variables.ts_sender = senderAddress
-		//			    variables.ts_recipients = recipientAddress;
-		//			    variables.ts_fanToFanMessage = message;
-		//			    variables.ts_subscribe = subscribeToArtist;
-		//			    variables.referring_url = EventLogger.getPageURL();
-		//
-		//				variables.ts_artist = getArtistId(campaign_id);
-		//				variables.cid = getCampaignId();
-		//
-		//			    variables.resp_format = "xml";
-		//			
-		//			request.data=variables;
-		//			loader.load(request);
-		//			
-		//			function handleShareEmail(e:Event):void {		
-		//				e.target.removeEventListener(Event.COMPLETE, handleShareEmail );
-		//				e.target.removeEventListener(IOErrorEvent.IO_ERROR, onErrorHandler);					
-		//				var response:XML = new XML(e.target.data);
-		//				var isSuccess:String = response["success"].toString();
-		//				
-		//				if(isSuccess == "true") {
-		//					EventLogger.fire(TSEvents.TYPE.SHARE,{campaign:getCampaignId(), artist:getArtistId(campaign_id), st : TSEvents.SUBTYPE.SHARE_EMAIL});			
-		//					dispatchEvent(new TSWidgetEvent(TSWidgetEvent.SHARE_EMAIL_COMPLETE));			
-		//					
-		//				} else {
-		//					var errorResponse:String = response.errors.base.toString();
-		//					dispatchEvent(new TSWidgetEvent(TSWidgetEvent.SHARE_EMAIL_ERROR, null, errorResponse.substr(4,errorResponse.length)));			
-		//				}
-		//			}			
-		//
-		//			function onErrorHandler( e:IOErrorEvent):void {
-		//				trace("IOErrorEvent: " + e.type + e.text);
-		//				e.target.removeEventListener(IOErrorEvent.IO_ERROR, onErrorHandler);			
-		//				_isSubmitting = false;											
-		//			}		
-		//			function onSecurityError(e : SecurityErrorEvent) : void {
-		//				trace("SecurityErrorEvent: " + e.type + ": " + e.text);
-		//				_isSubmitting = false;											
-		//			}	
-		//		}
+
 		
 		//////////////////////////////////////////////////////
 		//
@@ -791,10 +729,10 @@ package com.topspin.api
 			if (node.localName() == WIDGET_TYPE_E4M) app = TSApplications.E4M;
 			_widgetType = node.localName();
 			log("app : " + app);
-			
+						
 			//Anyone using the TSWidgetManager will 
 			//be event source type:  custom_api_player
-			EventLogger.setEnv(_event_source, loaderInfo);
+			EventLogger.setEnv(_event_source, loaderInfo,_currentCampaignId);
 			
 			// Check the widget status
 			//If the widget is unpublished or deleted, 
@@ -808,10 +746,9 @@ package com.topspin.api
 			
 			if (_status == STATUS_DELETED)
 			{
-				broadcastWidgetError("Widget Id has been deleted or is no longer valid.");
+				broadcastWidgetError("This widget is currently unavailable.");
 				return;
 			}
-			
 			
 			//Try and set up the referring url 
 			var refURL : String = EventLogger.getPageURL();
@@ -826,7 +763,7 @@ package com.topspin.api
 			//If the widget is in testing mode, do not begin to log to production.
 			if (EventLogger.getInstance().enabled)
 			{
-				//				log("Logging Enabled : " + _loggingEnabled);
+				//log("Logging Enabled : " + _loggingEnabled);
 				EventLogger.getInstance().enabled = _loggingEnabled;
 			}
 			
@@ -875,8 +812,9 @@ package com.topspin.api
 			//Set up Google Analytics if we have it.
 			var gat : String = getArtistGATrackingId(cid);
 			if (gat) EventLogger.setGATrackingId(gat);
+			trace("fire LOADED event");			
+			EventLogger.fire(TSEvents.TYPE.LOADED,{campaign: cid});	
 			
-			EventLogger.fire(TSEvents.TYPE.LOADED,{campaign: cid});			
 			var event : TSWidgetEvent = new TSWidgetEvent(TSWidgetEvent.WIDGET_LOAD_COMPLETE, {campaign_id : cid} );
 			dispatchEvent(event);							
 		}
@@ -888,7 +826,7 @@ package com.topspin.api
 		private function broadcastWidgetError( msg : String) : void
 		{
 			log(NAME + ": broadcastWidgetError = " + msg);
-			var event : TSWidgetEvent = new TSWidgetEvent(TSWidgetEvent.WIDGET_ERROR, msg);
+			var event : TSWidgetEvent = new TSWidgetEvent(TSWidgetEvent.WIDGET_ERROR, this, msg, true, true);
 			dispatchEvent(event);							
 		}
 		

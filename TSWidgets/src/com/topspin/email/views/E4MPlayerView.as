@@ -258,10 +258,8 @@ package com.topspin.email.views {
 		}		
 		
 		private function handleMouseOver(e:MouseEvent):void {
-//			trace("MOUSE OVER");
 			if (playerControl)
 			{
-//				TweenLite.killDelayedCallsTo(hidePlayer)
 				idleTimer.stop();
 				playerControl.show();
 			}
@@ -274,9 +272,6 @@ package com.topspin.email.views {
 			if (playerControl) {
 				idleTimer.start();
 			}		
-//			if (playerControl) {
-//				TweenLite.delayedCall(1,hidePlayer);	
-//			}
 			
 		}
 		private function hidePlayer(): void {

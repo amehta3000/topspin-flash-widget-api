@@ -256,13 +256,11 @@ package com.topspin.email.controls
 			var now : Date = new Date();
 			dm.updateSavedAge(dob);
 			trace("________");
-			trace("Capabilities.language : " + Capabilities.language);
 			
 			trace("DOB SON: " + dob);
 			trace("AGE SON" + age);	
 			if (minAge != -1)
 			{
-				
 				valid = (age >= minAge);
 				if (!valid){
 //					_view.showDOBFailDialog();
@@ -272,7 +270,6 @@ package com.topspin.email.controls
 				}
 			}
 			
-			var dob : Date = new Date(yyyy,mm,dd);
 			dm.setDOB(dob);
 			trace("DOB SET! go to email");		
 			handleRemoved();

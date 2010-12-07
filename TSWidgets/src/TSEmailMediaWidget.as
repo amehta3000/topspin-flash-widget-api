@@ -21,6 +21,7 @@ package
 {
 
 	import com.topspin.api.config.EnvironmentDetector;
+	import com.topspin.api.events.TSWidgetEvent;
 	import com.topspin.api.logging.EventLogger;
 	import com.topspin.api.logging.TSApplications;
 	import com.topspin.api.logging.TSEvents;
@@ -54,7 +55,7 @@ package
 	public class TSEmailMediaWidget extends Sprite {
 	
 		// Static
-		public static var VERSION:String = "E.YEASAYER.100310";
+		public static var VERSION:String = "E.HANK.120610";
 		public static var FADE_RATE:Number = .3;
 		
 		//Properties 
@@ -72,17 +73,17 @@ package
 		
 		//Components
 		public var viewtype : String = "email";			//player	
-		public var view:AbstractView;			//Main view
+		public var view:AbstractView;			//Main views
 		public var progress:SpinLoader;					//Loading progress spinner
 		public var app : Object;						//Reference to the main Application
 
 		//Font embed Regular
 		[Embed( source='/fonts/LucidaGrande.ttf', fontName='LucidaGrandeFont', 
-			unicodeRange='U+0020-U+002F,U+0030-U+0039,U+003A-U+0040,U+0041-U+005A,U+005B-U+0060,U+0061-U+007A,U+007B-U+007E, U+0080, U+00BF,U+00C0,U+00C1,U+00C8,U+00C9,U+00CC,U+00CD,U+00D2,U+00D3,U+00D8,U+00D9,U+00DA,U+00DD,U+00E0,U+00E1,U+00E8,U+00E9,U+00EC,U+00ED,U+00F2,U+00F3,U+00F8,U+00F9,U+00FA,U+00FD,U+20A4,U+20AC,U+20B5,U+00A5,U+20A4,U+00A3', mimeType="application/x-font-truetype" )]		
+			unicodeRange='U+0020-U+002F,U+0030-U+0039,U+003A-U+0040,U+0041-U+005A,U+005B-U+0060,U+0061-U+007A,U+007B-U+007E, U+0080, U+00BF,U+00C0,U+00C1,U+00C8,U+00C9,U+00CC,U+00CD,U+00D2,U+00D3,U+00D8,U+00D9,U+00DA,U+00DD,U+00E0,U+00E1,U+00E8,U+00E9,U+00EC,U+00ED,U+00F2,U+00F3,U+00F8,U+00F9,U+00FA,U+00FD,U+20A4,U+20AC,U+20B5,U+00A5,U+20A4,U+00A3,U+00A9,U+00AE', mimeType="application/x-font-truetype" )]		
 		public static var REGULAR : Class;
 		//Font embed Bold
 		[Embed( source='/fonts/Lucida Grand Bolder.ttf', fontWeight="bold", fontName='LucidaGrandeFont', 
-			unicodeRange='U+0020-U+002F,U+0030-U+0039,U+003A-U+0040,U+0041-U+005A,U+005B-U+0060,U+0061-U+007A,U+007B-U+007E, U+0080, U+00BF,U+00C0,U+00C1,U+00C8,U+00C9,U+00CC,U+00CD,U+00D2,U+00D3,U+00D8,U+00D9,U+00DA,U+00DD,U+00E0,U+00E1,U+00E8,U+00E9,U+00EC,U+00ED,U+00F2,U+00F3,U+00F8,U+00F9,U+00FA,U+00FD,U+20A4,U+20AC,U+20B5,U+00A5,U+20A4,U+00A3', mimeType="application/x-font-truetype" )]
+			unicodeRange='U+0020-U+002F,U+0030-U+0039,U+003A-U+0040,U+0041-U+005A,U+005B-U+0060,U+0061-U+007A,U+007B-U+007E, U+0080, U+00BF,U+00C0,U+00C1,U+00C8,U+00C9,U+00CC,U+00CD,U+00D2,U+00D3,U+00D8,U+00D9,U+00DA,U+00DD,U+00E0,U+00E1,U+00E8,U+00E9,U+00EC,U+00ED,U+00F2,U+00F3,U+00F8,U+00F9,U+00FA,U+00FD,U+20A4,U+20AC,U+20B5,U+00A5,U+20A4,U+00A3,U+00A9,U+00AE', mimeType="application/x-font-truetype" )]
 		public static var BOLD : Class;		
 		
 		//Contructor
@@ -149,7 +150,8 @@ package
 			dm = DataManager.getInstance();
 			dm.setAppRoot(this);
 			dm.addEventListener(DataManager.DATA_LOAD_SUCCESS, handleDataLoadSuccess);
-			dm.addEventListener(DataManager.DATA_LOAD_ERROR, handleDataLoadError)
+//			dm.addEventListener(DataManager.DATA_LOAD_ERROR, handleDataLoadError);
+			dm.addEventListener(TSWidgetEvent.WIDGET_ERROR, handleDataLoadError);
 			
 			//Test for External Interface access
 			testEI();
@@ -172,12 +174,12 @@ package
 			widget_id = (loaderInfo.parameters.widget_id) ? loaderInfo.parameters.widget_id:widget_id;
 			
 			//Set up ev logger for E4M application
-			EventLogger.setEnv(TSApplications.E4M, loaderInfo,null,null,this,gat, debug);
+//			EventLogger.setEnv(TSApplications.E4M, loaderInfo,null,null,this,gat, debug);
 
 			//preview_mode sent in Topspin publish platform so that px logger events are not fired
 			var isPreview : Boolean = (loaderInfo.parameters.preview_mode != null) ? (loaderInfo.parameters.preview_mode == "true") : false;
 			if (isPreview) {
-				EventLogger.getInstance().enabled = false;
+//				EventLogger.getInstance().enabled = false;
 				dm.isPreview = isPreview;
 			}
 
@@ -376,7 +378,7 @@ package
 			varMap["playMedia"] = loaderInfo.parameters.playMedia;
 			varMap["autoplay"] = loaderInfo.parameters.autoplay;
 			varMap["baseColor"] = loaderInfo.parameters.baseColor;						
-			varMap["bgalpha"] = (loaderInfo.parameters.bgalpha != null) ? loaderInfo.parameters.bgalpha : loaderInfo.parameters.bgAlpha;
+//			varMap["bgalpha"] = (loaderInfo.parameters.bgalpha != null) ? loaderInfo.parameters.bgalpha : loaderInfo.parameters.bgAlpha;
 			varMap["bgImage"] = loaderInfo.parameters.bgImage;
 			varMap["crossfaderate"] = loaderInfo.parameters.crossfaderate;	
 			varMap["ctaImage"] = loaderInfo.parameters.ctaImage;
@@ -471,8 +473,8 @@ package
 		 * @param e
 		 * 
 		 */		
-		private function handleDataLoadError(e:Event):void {
-			displayErrorView("Sorry, the widget cannot be loaded.");
+		private function handleDataLoadError(e:TSWidgetEvent):void {
+			displayErrorView(e.message);
 		}
 		/**
 		 * Handler for the view once it has been drawn and waiting
@@ -482,8 +484,7 @@ package
 		 */		
 		private function handleViewComplete(e:Event):void {
 			view.removeEventListener(Event.COMPLETE, handleViewComplete);
-			trace("TSEmailMediaWidget.handleViewComplete");
-			// App has been loaded fire LOADED event
+// 			App has been loaded fire LOADED event
 //			var gat : String = dm.getGATrackinId();
 //			if (gat) EventLogger.setGATrackingId(gat);
 //            EventLogger.fire(TSEvents.TYPE.LOADED,{campaign:dm.getCampaignId(), referring_url : dm.getReferringURL()});
@@ -508,27 +509,29 @@ package
 		 * 
 		 */
 		public function displayErrorView(inputText:String = "This content has been removed by the artist."):void {
+			showLoader(false);
 			var errClip:Sprite = new Sprite();
 				errClip.graphics.clear();
 				errClip.graphics.beginFill(0x000000, 1);
 				errClip.graphics.drawRect(0, 0, _width, _height);
 				errClip.graphics.endFill();
 
-//			var errFormat:TextFormat = new TextFormat();
-//				errFormat = styles.getErrFormat();
-			var errcss : StyleSheet = new StyleSheet();
+			var errFormat:TextFormat = new TextFormat(styles.getFormattedFontName(),10,0xcc0000, true);
+//			trace("getFormattedFontName: " + styles.getFormattedFontName());
+				
+//			var errcss : StyleSheet = new StyleSheet();
 				
 			var errorText:TextField = new TextField();
 				errorText.text = inputText;
 				errorText.width = _width;
 				errorText.height = 17;
-//				errorText.setTextFormat(errFormat);
+				errorText.setTextFormat(errFormat);
 				errorText.autoSize = "left";
 				errorText.embedFonts = styles.getEmbedFonts();
 				errorText.antiAliasType = "advanced";
 				errorText.y = (_height - errorText.height) / 2 ;
 				errorText.x = (_width - errorText.width) / 2 ;
-			errClip.addChild(errorText);
+				errClip.addChild(errorText);
 
 			addChildAt(errClip, numChildren);
 			
@@ -576,7 +579,12 @@ package
 				
 			}
 			progress.x = (w - progress.width) / 2;
-			progress.y = Math.floor( (h - 28 - progress.height) / 2 ); //hard code 28 the footer (which is 23), to line up with play btn
+			if (h > 150)
+			{
+				progress.y = Math.floor( (h - 28 - progress.height) / 2 ); //hard code 28 the footer (which is 23), to line up with play btn
+			}else{
+				progress.y = Math.floor( (h - progress.height) / 2 );
+			}
 		}		
 		/**
 		 * Public method to show the throbber or not 

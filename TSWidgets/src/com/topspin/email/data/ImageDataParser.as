@@ -41,7 +41,8 @@ package com.topspin.email.data {
 	
 	public class ImageDataParser extends EventDispatcher {
 		// Input Variables
-		private static const FLICKR_ADAPTER_PATH : String =  "/flash/adapters/FlickrAdapter.swf";
+//		private static const FLICKR_ADAPTER_PATH : String =  "/flash/adapters/FlickrAdapter.swf";
+		private static const FLICKR_ADAPTER_PATH : String =  "/widgets/api/TSFlickrAdapter.swf";
 		public var _maxPhotos : Number = 50;
 		
 //		private var _widgetXML:XML;
@@ -78,20 +79,15 @@ package com.topspin.email.data {
 		}
 		
 		public function parseImages():void {
-			
 			//First try and get all the images including the Single image 
 			if (_tsWidget.isShowProductImagesEnabled(_campaignId) )
 			{
-				this._imageDataArray  = _tsWidget.getAllProductImageData(_campaignId);	
-				trace("Show product Images: " + _imageDataArray.length);
+				this._imageDataArray = _tsWidget.getAllProductImageData(_campaignId);	
 			} else if (_tsWidget.getPosterImageData(_campaignId) != null) {
 				//Single Poster Image will be the display
 				this._imageDataArray.push(_tsWidget.getPosterImageData(_campaignId));
-				trace("Show single image: " + this._imageDataArray.length);
 			} 
-				
 			retrieveFlickrAdapter();
-			
 			this.dispatchEvent(new Event(Event.COMPLETE));  // At end, dispatch event
 		}
 		
@@ -165,9 +161,7 @@ package com.topspin.email.data {
 						imageData.id = currentURL;
 						imageData.imageURL = currentURL;
 						if (imgIdMap[currentURL] == null) {
-//							trace("_imageDataArray: " + imageData.imageURL);
 							_imageDataArray.push(imageData);
-							
 							imgIdMap[currentURL] = currentURL;	
 						}
 					}

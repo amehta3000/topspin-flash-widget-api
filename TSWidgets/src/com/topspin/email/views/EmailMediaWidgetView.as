@@ -12,6 +12,7 @@ package com.topspin.email.views {
 	import com.topspin.email.data.DataManager;
 	import com.topspin.email.dialogs.EmailOptInDialog;
 	import com.topspin.email.dialogs.FatalDialog;
+	import com.topspin.email.dialogs.MessageDialog;
 	import com.topspin.email.dialogs.SocialDialog;
 	import com.topspin.email.events.MessageStatusEvent;
 	import com.topspin.email.style.GlobalStyleManager;
@@ -127,7 +128,6 @@ package com.topspin.email.views {
 			
 			//Get an instance of DataManager
 			dm = DataManager.getInstance();
-//			dm.addEventListener(DataManager.SLIDESHOW_INIT, handleSlideshowInit);
 			dm.addEventListener(DataManager.IMAGE_DATA_UPDATE, updateSlideshow);
 			
 			dm.addE4MHandler(handleE4MEvent);
@@ -379,19 +379,20 @@ package com.topspin.email.views {
 			dependency.addEventListener(Event.COMPLETE, handleLoadComplete);
 			dependency.addDependancy("createChildrenComplete");
 		
-			if (dm.collectDOB())
-			{
-				dobControl = new DOBControl(MINI_MODE);
-			 	dobControl.addEventListener(DOBControl.DOB_SUBMITTED, handleDob);
-				dobControl.addEventListener(MessageStatusEvent.TYPE, handleDisplayStatus);
-				dobControl.addEventListener(DOBControl.DOB_VALIDATION_FAIL, showDOBFailDialog);
-				
-			 	dobControl.x = (styles.getHAlign() == "center") ? (_width - dobControl.width)/2 : styles.getHPadding();
-				dobControl.alpha = 0;
-				controlClip.addChild(dobControl);
-				
-				_clips.push(dobControl);				
-			}
+			createDOB();
+//			if (dm.collectDOB())
+//			{
+//				dobControl = new DOBControl(MINI_MODE);
+//			 	dobControl.addEventListener(DOBControl.DOB_SUBMITTED, handleDob);
+//				dobControl.addEventListener(MessageStatusEvent.TYPE, handleDisplayStatus);
+//				dobControl.addEventListener(DOBControl.DOB_VALIDATION_FAIL, showDOBFailDialog);
+//				
+//			 	dobControl.x = (styles.getHAlign() == "center") ? (_width - dobControl.width)/2 : styles.getHPadding();
+//				dobControl.alpha = 0;
+//				controlClip.addChild(dobControl);
+//				
+//				_clips.push(dobControl);				
+//			}
 		
 			if(dm.getPlayMedia() ) {
 				dependency.addDependancy(handlePlayerAdapterLoaded);
@@ -423,6 +424,23 @@ package com.topspin.email.views {
 			
 			dependency.setLoadDependencyMet("createChildrenComplete");
 		}
+		
+		private function createDOB() : void {
+			if (!dobControl){
+				dobControl = new DOBControl(MINI_MODE);
+				dobControl.addEventListener(DOBControl.DOB_SUBMITTED, handleDob);
+				dobControl.addEventListener(MessageStatusEvent.TYPE, handleDisplayStatus);
+				dobControl.addEventListener(DOBControl.DOB_VALIDATION_FAIL, showDOBFailDialog);
+				
+				dobControl.x = (styles.getHAlign() == "center") ? (_width - dobControl.width)/2 : styles.getHPadding();
+//				dobControl.alpha = 0;
+				dobControl.visible = 0;
+				controlClip.addChild(dobControl);
+				
+				_clips.push(dobControl);				
+			}
+		}
+		
 		public function handleDisplayStatus( e : MessageStatusEvent ) : void
 		{
 			displayStatus(e.message, e.isError);
@@ -575,11 +593,9 @@ package com.topspin.email.views {
 			if (infoBtn) infoBtn.addEventListener(MouseEvent.CLICK, showInfoDialog );			
 			if (privacyLink) privacyLink.addEventListener(MouseEvent.CLICK, showPrivacy);
 		}
-
-		//Clicks out to another place
-		public function showPrivacy( e : MouseEvent = null) : void
+		public function showLink( link : String ) : void
 		{
-			var link : String = dm.getPrivacyUrl();
+			var err : Boolean = false;
 			if (link && link != "null") {
 				if (dm.getExternalInterfacesAvailable()) { 
 					var request:URLRequest = new URLRequest(link);
@@ -587,26 +603,28 @@ package com.topspin.email.views {
 						navigateToURL(request);
 					}
 					catch (e:Error) {
+						err = true;
 						trace("Unable to link to " + link);
 					}
+				}else{
+					err=true;
 				}
-			}			
+				if (err)
+				{
+					showMessageDialog("", link);
+				}
+			}	
+		}
+		//Clicks out to another place
+		public function showPrivacy( e : MouseEvent = null) : void
+		{
+			showLink(dm.getPrivacyUrl());
+		
 		}		
 		//Clicks out to another place
 		public function showCustomLink( e : MouseEvent = null) : void
 		{
-			
-			if (dm.getCustomLinkUrl() && dm.getCustomLinkUrl() != "null") {
-				if (dm.getExternalInterfacesAvailable()) { 
-					var request:URLRequest = new URLRequest(dm.getCustomLinkUrl());
-					try {            
-						navigateToURL(request);
-					}
-					catch (e:Error) {
-						trace("Unable to link to " + dm.getCustomLinkUrl());
-					}
-				}
-			}			
+			showLink(dm.getCustomLinkUrl());	
 		}
 		
 		public function textChanged(evt:Event):void {
@@ -626,8 +644,6 @@ package com.topspin.email.views {
 			    }			
 			}
 		}	
-
-
 
 		/**
 		 * Shows the email control and tweens it in 
@@ -658,6 +674,7 @@ package com.topspin.email.views {
 				case DOB_STATE:
 					
 					dobControl.alpha = 0;
+					dobControl.visible = false;
 					if (!controlClip.contains(dobControl))
 					{
 						controlClip.addChild(dobControl);	
@@ -781,7 +798,7 @@ package com.topspin.email.views {
 		private function updateSlideshow(e:Event = null):void {
 //			trace("E4M: update a Slideshow");
 			if (!slideshow) {
-				trace("create a slideshow!!!");
+				trace("create a slideshow!!! " + dm.getImageData().length);
 				slideshow = new SlideShow(_width, _height, dm.getImageData(), styles.getLinkColor(), 
 											dm.crossfaderate, dm.smoothing);
 				
@@ -789,7 +806,8 @@ package com.topspin.email.views {
 				slideshow.x = 0;//styles.getHPadding();
 				slideshow.y = 0;//styles.getHPadding();
 				
-				if(dm.getPlayMedia()) {
+				if(dm.getPlayMedia() || dm.getImageData().length <= 1) {
+					trace("DISABLE BUTTONS?");
 					slideshow.disableButtons();
 				}
 				
@@ -802,6 +820,11 @@ package com.topspin.email.views {
 			} else {
 //				trace("E4M: udpateSlideshow : slideshow.refresh()");
 				slideshow.refresh();
+				if(dm.getPlayMedia() || dm.getImageData().length <= 1) {
+					slideshow.disableButtons();
+				}else{
+					slideshow.enableButtons();
+				}
 			}
 		}
 
@@ -1040,14 +1063,13 @@ package com.topspin.email.views {
 				displayStatus("Email submission not allowed in preview mode.", true);
 			} 
 			
-			var dob : Date;
-			if (dm.collectDOB())
-			{
-				dob = dm.getDOB();
-			}			
+//			var dob : Date = dm.getDOB();
+//			if (dm.collectDOB())
+//			{
+			//			}			
 			
 			//Submit the email.
-			dm.submitE4M(email, dob);
+			dm.submitE4M(email);
 		}	
 		/**
 		 * Handles E4MEvent 
@@ -1069,12 +1091,6 @@ package com.topspin.email.views {
 					_e4mSubmitted = true;
 					_isSubmitting = false;
 					beginReset(true);					
-					//	function onErrorHandler( ev:IOErrorEvent):void {
-					//		ev.target.removeEventListener(Event.COMPLETE, onCompleteHandler );
-					//		ev.target.removeEventListener(IOErrorEvent.IO_ERROR, onErrorHandler);			
-					//		displayStatus("Sorry, we cannot complete your request.", true);
-					//		_isSubmitting = false;
-					//	}					
 					break;
 				
 				case E4MEvent.EMAIL_ERROR:
@@ -1087,7 +1103,13 @@ package com.topspin.email.views {
 					trace("E4M Underage fail: " + e.message);
 					displayStatus(e.message, true);
 					_isSubmitting = false;
-					break;						
+					break;
+				case E4MEvent.DOB_NULL_BUT_REQUIRED:
+					trace("E4M Collect DOB: " + e.message);
+					displayStatus(e.message, true);
+					_isSubmitting = false;
+					showState(DOB_STATE);
+					break;					
 			}
 		}					
 		/**
@@ -1189,6 +1211,21 @@ package com.topspin.email.views {
 				dialogContainer.removeChildAt(i);
 			}	
 			removeChild(dialogContainer);
+		}		
+		/**
+		 * Shows the social dialog 
+		 * @param e
+		 * 
+		 */		
+		public function showMessageDialog(msg : String, url : String) : void {
+			
+			var dialog:MessageDialog = new MessageDialog(stage.stageWidth,stage.stageHeight, msg, url);
+			dialog.addEventListener(DialogEvent.CLOSE, destroyDialogs);
+			
+			dialogContainer.addChild(dialog);
+			addChild(dialogContainer);		
+			dialog.activate();	
+			
 		}		
 		/**
 		 * Shows the social dialog 

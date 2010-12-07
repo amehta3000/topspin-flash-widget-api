@@ -26,7 +26,7 @@ package com.topspin.email.dialogs
 		
 		protected var showBoth : Boolean = true;		
 		
-		public function CopyUrlDialog( w : Number = 400, h : Number = 400)
+		public function CopyUrlDialog( w : Number = 400, h : Number = 400, url : String = null)
 		{
 			_width = w;
 			_height = h;

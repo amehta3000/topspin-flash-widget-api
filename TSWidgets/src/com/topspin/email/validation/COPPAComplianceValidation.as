@@ -27,6 +27,7 @@ package com.topspin.email.validation
 		//boolean indicating whether to flush the TS_SHARED_OBJECT or not
 		private var _flush : Boolean = false;
 		
+		private var _dob : Date;
 		
 		/**
 		 * Retrieves and sets a guid in the px logger. 
@@ -37,14 +38,14 @@ package com.topspin.email.validation
 		{
 			var noCookie : Boolean = false;			
 			var mySo : SharedObject;
-			var dob : Date;
 			var ts : Date;
 			var age : Number;
 			
 			try {
 				mySo = SharedObject.getLocal(COPPAComplianceValidation.COPPA_SHARED_OBJECT, "/");
 				
-				if (flushCookie && !checkSonyCookie)
+//				if (flushCookie && !checkSonyCookie)
+				if (flushCookie)
 				{
 					updateSavedDOB(new Date(),minAge,checkSonyCookie, flushCookie);
 					dispatchCollectDOBEvent();
@@ -55,9 +56,8 @@ package com.topspin.email.validation
 				if ( mySo.data.dob != null)
 				{
 					noCookie = false;
-					dob = mySo.data.dob;
+					_dob = mySo.data.dob;
 					ts = mySo.data.ts;	
-					
 					//Check the timestamp, if it has been longer 
 					//than 30 days, then start from the beginning
 					//and ask for the DOB again.
@@ -67,7 +67,6 @@ package com.topspin.email.validation
 						var timetoreset : Number = numDays  * 24 * 60 * 60 * 1000;
 						var now : Date = new Date();
 						var diff : Number = now.time - ts.time;
-						
 						trace("diff :  " + diff + " timetoreset : " + timetoreset);
 						if (diff >= timetoreset)
 						{
@@ -83,7 +82,7 @@ package com.topspin.email.validation
 						}
 					}
 					
-					trace("SO dob: " + dob);
+					trace("SO dob: " + _dob);
 					//Find the age if the dob in the so exists
 					if (dob != null)
 					{
@@ -123,21 +122,28 @@ package com.topspin.email.validation
 					if (checkSonyCookie)
 					{
 						checkLabelCookie(0);
+//						dispatchCollectDOBEvent();
 					}else{
 						trace("No Age found -> Get the DOB");
 						dispatchCollectDOBEvent();
 					}
 				}
 				
-				//				trace("No Age found -> Passed");
-				//				dispatchPassedEvent();
-				
-				//				var flushResult:Object = mySo.flush(500);				
 			} catch (e : Error) {
 				trace("Unable to create and retrieve " + COPPA_SHARED_OBJECT);
 				dispatchCollectDOBEvent();
 			}
 		}				
+		
+		public function get dob() : Date
+		{
+			return _dob;
+		}
+		
+		public function set dob( dob : Date ) : void
+		{
+			_dob = dob;
+		}
 		
 		/**
 		 * Saves the dob in a shared object 
@@ -145,19 +151,23 @@ package com.topspin.email.validation
 		 * @param minAge - Number
 		 * 
 		 */		
-		public function updateSavedDOB(dob : Date, minAge : Number, updateSonyCookie : Boolean, clearCookie : Boolean = false) : void
+		public function updateSavedDOB(birthdate : Date, minAge : Number, updateSonyCookie : Boolean, clearCookie : Boolean = false) : void
 		{
-			trace("-updateSavedDOB: " + dob, minAge);
+			trace("-updateSavedDOB: " + birthdate, minAge);
 			var mySo : SharedObject;
 			var age : Number;
+			
+			//set the dob on the class
+			_dob = birthdate;
+			
 			try{
 				mySo = SharedObject.getLocal(COPPAComplianceValidation.COPPA_SHARED_OBJECT, "/");
 				
 				//Set the dob on the ud				
-				mySo.data.dob = (clearCookie) ? null : dob;
+				mySo.data.dob = (clearCookie) ? null : birthdate;
 				mySo.data.ts = (clearCookie) ? null : new Date();
 				
-				age = calculateAge(dob);
+				age = calculateAge(birthdate);
 				//Check the age verses the minAge
 				if (minAge != -1 && age < minAge)
 				{
@@ -174,10 +184,18 @@ package com.topspin.email.validation
 			}			
 			
 		}
-		
-		
-		
-		public function checkLabelCookie( u13Code : Number ) : void 
+
+		/**
+		 * INFO: http://subs.sonymusic.com/coppa/flash_cookie.html
+		 * We will lookup the global cookie and see if any other Sony site has reported this to be under 13
+	     * If we find out that global cookie exists, we return 1. You have to show the sorry message and take action
+		 * {"u13":"1"} 
+		 * If we find out that there is no global cookie existing, we return 0. Nothing needs to be done
+		 * {"u13":"0"} 
+		 * @param u13Code
+		 * 
+		 */
+		private function checkLabelCookie( u13Code : Number ) : void 
 		{
 			var cookieCheckUrl : String = SONY_COOKIE_URL + u13Code;
 			cookieCheckUrl += "&cachebust=" + Math.random();
@@ -213,7 +231,7 @@ package com.topspin.email.validation
 					dispatchCollectDOBEvent();
 				}
 			}catch(e : Error){
-				
+				trace("Unabled to decode SONY response");
 			}
 			cleanup();
 		}
@@ -222,6 +240,7 @@ package com.topspin.email.validation
 		{
 			trace("Security Error: Cannot connect to LABEL for COPPA Compliance: " + e);
 			dispatchCollectDOBEvent();
+//			dispatchPassedEvent();
 			cleanup();
 		}	
 		private function handleIOError( e : IOErrorEvent ) : void

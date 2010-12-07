@@ -3,6 +3,7 @@ package com.topspin.common.utils {
 	
 	import flash.net.URLRequest;
 	import flash.net.navigateToURL;
+	import flash.net.sendToURL;
 	
 	public class SocialUtils {
 
@@ -23,6 +24,7 @@ package com.topspin.common.utils {
 		public static var PLATFORM_TWITTER : String = "Twitter";
 		public static var PLATFORM_DIGG : String = "Digg";
 		public static var PLATFORM_DELICIOUS : String = "Delicious";
+		public static var PLATFORM_EMAIL : String = "Email";
 		
 		public static var ENV_QA1 : String = "qa1";
 		public static var ENV_QA2 : String = "qa2";
@@ -32,37 +34,78 @@ package com.topspin.common.utils {
 		
 		private var env : String;
 		
-		/**
-		 * Need to call gidget.php to make Facebook work properly.  It is located at 
-		 * http://share.topspin.net/ 
-		 * @param wid = widget_id
-		 * 
-		 */		
-		public static function shareFacebook(wid : String, artistName : String, baseurl : String, awesmParentId : String = null, 
-											create_type : String = "topspin_api", env : String = null, 
-											api_key : String = null, flashVars: String = null) : void { 
+		public static function shareMyOrFb(platform : String, wid : String, artistName : String, baseurl : String, awesmParentId : String = null, 
+										   create_type : String = "topspin_api", env : String = null, 
+										   api_key : String = null, flashVars: String = null) : void { 
 			
-			//Create the actual gigdet url and then awesm it.
-//			baseurl = "http://qa1.topspin.net/";
-			trace("FACEBOOK baseurl : " + baseurl);
+			var targetURL : String;
+			var share_type : String;
+			
+			var artistId : String = "";
+			var widgetId : String = ""; 
+			var ids : Array = parseIds(wid);
+			
+			trace("1 FLASHVAR: " + flashVars);
+			var src : String = (platform == PLATFORM_FACEBOOK) ? "fb" : "my";
+			flashVars += "&src=" + src; 
+			trace("2 FLASHVAR: " + flashVars);
+			
+			if (ids != null && ids.length==3)
+			{
+				artistId = ids[1];
+				widgetId = ids[2];
+			}
+			
 			var gidgetURL : String = parseGidgetId(wid, artistName, baseurl, env, flashVars);
-			trace("FACEBOOK :" + gidgetURL);
 			if (gidgetURL)
 			{
 				gidgetURL = encodeURIComponent(gidgetURL);
 			}
-			var targetUrl:String = "http://www.facebook.com/sharer.php?u=";
-			generateAwesmAndLaunch(gidgetURL,PLATFORM_FACEBOOK, targetUrl, api_key, {parent_awesm: awesmParentId, share_type : "facebook", create_type : create_type});			
-		}	
+			
+			if (platform == PLATFORM_FACEBOOK) {
 				
-		public static function shareMySpace(url:String, title:String, embedCodeString:String, awesmParentId : String = null, create_type : String = "api", api_key : String = null):void {
-			var targetUrl:String = "http://www.myspace.com/index.cfm?fuseaction=postto&" + 
-			"t=" + encodeURIComponent(title) + "&c=" + encodeURIComponent(embedCodeString)  + "&u="; //+ encodeURIComponent(url);
-			var t : String = encodeURIComponent(targetUrl);
-			generateAwesmAndLaunch(url,PLATFORM_MYSPACE, t, api_key, {parent_awesm: awesmParentId, share_type : "myspace", create_type : create_type});										
+				targetURL = "http://www.facebook.com/sharer.php?u=";
+				share_type = "facebook";
+			}else{
+				
+				targetURL = "http://www.myspace.com/Modules/PostTo/Pages/?u=";
+				share_type = "myspace";
+				
+			}
+							
+			generateAwesmAndLaunch(gidgetURL,platform, targetURL, api_key, {parent_awesm: awesmParentId, share_type : share_type, create_type : create_type, user_id : artistId, notes: widgetId});			
 		}
 		
-		public static function shareTwitter(url:String, title:String, awesmParentId : String = null, create_type : String = "api", api_key : String = null, tweetHash : String = null) : void {
+//		/**
+//		 * Need to call gidget.php to make Facebook work properly.  It is located at 
+//		 * http://share.topspin.net/ 
+//		 * @param wid = widget_id
+//		 * 
+//		 */		
+//		public static function shareFacebook(wid : String, artistName : String, baseurl : String, awesmParentId : String = null, 
+//											create_type : String = "topspin_api", env : String = null, 
+//											api_key : String = null, flashVars: String = null) : void { 
+//			
+//			trace("FACEBOOK baseurl : " + baseurl);
+//			var gidgetURL : String = parseGidgetId(wid, artistName, baseurl, env, flashVars);
+//			trace("FACEBOOK :" + gidgetURL);
+//			if (gidgetURL)
+//			{
+//				gidgetURL = encodeURIComponent(gidgetURL);
+//			}
+//			var targetUrl:String = "http://www.facebook.com/sharer.php?u=";
+//			generateAwesmAndLaunch(gidgetURL,PLATFORM_FACEBOOK, targetUrl, api_key, {parent_awesm: awesmParentId, share_type : "facebook", create_type : create_type});			
+//		}	
+//				
+//		public static function shareMySpace(url:String, title:String, embedCodeString:String, awesmParentId : String = null, create_type : String = "api", api_key : String = null):void {
+//			var targetUrl:String = "http://www.myspace.com/index.cfm?fuseaction=postto&" + 
+//			"t=" + encodeURIComponent(title) + "&c=" + encodeURIComponent(embedCodeString)  + "&u="; //+ encodeURIComponent(url);
+//			var t : String = encodeURIComponent(targetUrl);
+//			generateAwesmAndLaunch(url,PLATFORM_MYSPACE, t, api_key, {parent_awesm: awesmParentId, share_type : "myspace", create_type : create_type});
+//
+//		}
+		
+		public static function shareTwitter(wid: String, url:String, title:String, awesmParentId : String = null, create_type : String = "api", api_key : String = null, tweetHash : String = null) : void {
 			
 			var eTitle : String = title ;
 			//Hack to make sure we replace & with and.  twitter doesn't like it.
@@ -73,8 +116,36 @@ package com.topspin.common.utils {
 			var e1Title : String = encodeURIComponent( eTitle + thash + " - ");
 			var targetUrl:String = "http://twitter.com/home?status=" + encodeURIComponent(e1Title);//+ encodeURIComponent(url);
 
-			generateAwesmAndLaunch(url,PLATFORM_TWITTER, targetUrl, api_key, {parent_awesm: awesmParentId, share_type : "twitter", create_type : create_type});
+			var artistId : String = getArtistId(wid);
+			var widgetId : String = getArtistId(wid);
+			
+			generateAwesmAndLaunch(url,PLATFORM_TWITTER, targetUrl, api_key, {parent_awesm: awesmParentId, share_type : "twitter", create_type : create_type, user_id : artistId, notes: widgetId});
 		}
+		
+		public static function shareEmail(wid: String, url:String, title:String, awesmParentId : String = null, create_type : String = "api", api_key : String = null) : void {
+
+			var eTitle : String = title;
+			//Hack to make sure we replace & with and.  twitter doesn't like it.
+			if (title.indexOf("&") != -1) {
+				eTitle = StringUtil.replace(title,"&","and");
+			}			
+
+//			var targetUrl:String = "http://twitter.com/home?status=" + encodeURIComponent(eTitle);
+			
+			var artistId : String = getArtistId(wid);
+			var widgetId : String = getArtistId(wid);
+			var emailBody : String = encodeURIComponent("Hey, check this out:%0A");
+			var targetUrl = "mailto:?subject=" + encodeURIComponent(title) + "&body=";
+//			try {
+//				trace("SEND TO URL: " + targetUrl);
+//				navigateToURL(new URLRequest(targetUrl));
+//			}catch(e:Error) {
+//				trace("THERE IS AN ERROR SENDING EMAIL");
+//			}		
+			//getURL(mailto,"_self");			
+			generateAwesmAndLaunch(url,PLATFORM_EMAIL, encodeURIComponent(targetUrl), api_key, {parent_awesm: awesmParentId, share_type : "email", create_type : create_type, user_id : artistId, notes: widgetId});
+		}		
+		
 		
 		public static function shareDigg(url:String, title:String, awesmParentId : String = null):void {
 			var targetUrl:String = "http://digg.com/submit?" + "url=" + encodeURIComponent(url) + "&title=" + encodeURIComponent(title) + "&bodytext=&media=news&topic=music";				
@@ -86,71 +157,49 @@ package com.topspin.common.utils {
 			launchPlatform(targetUrl, PLATFORM_DELICIOUS);
 		}		
 		
-
 		/**
-		 * Construct a valid gidget.php url including the child id which gets passed on as a  
+		 * return: array[1] = artistId
+		 * 		   array[2] = widgetId
+		 *  
 		 * @param wid
-		 * @param artistName
-		 * @param type
-		 * @param env
-		 * @param fv - flash vars with a | delimiter and - marks for equality signs
 		 * @return 
 		 * 
 		 */		
-		public static function parseGidgetId( wid : String, artistName : String, baseurl : String, 
-											  env : String = null, fv : String = null) : String 
+		private static function parseIds( wid : String ) : Array
 		{
-			var shareURL : String = baseurl + "fbshare/";
-			var artistID : String;
-			var widgetID : String;
-			var widgetStr : String;
-			var widgetCode : String = "B";
-			
-			if (wid.indexOf(WIDGET_TYPE_BUNDLE) != -1) widgetCode="B";
-			if (wid.indexOf(WIDGET_TYPE_E4M) != -1) widgetCode="E";
-			if (wid.indexOf(WIDGET_TYPE_SINGLE) != -1) widgetCode="S";
-			if (wid.indexOf(WIDGET_TYPE_COMBO) != -1) widgetCode="C";
-			
-			//BUNDLE - https://newqa.topspin.net/api/v1/artist/816/bundle_widget/2225 
-			//E4M - https://app.topspin.net/api/v1/artist/49/email_for_media/701
-			//SINGLE - https://newqa.topspin.net/api_v1_single_track_player_widget/show/2248?artist_id=816
-			//http://share.topspin.net/share/BASECAMP/49/E701
-			
-			var artist : String = "ARTIST";
-			trace("artist name : " + artist, wid);
-			shareURL += artist + "/";
-			trace("SHAREURL " + shareURL);
 			var artistReg :RegExp =  new RegExp(/artist\/(\d+)\/[\w_]+\/(\d+)/);
 			var matches : Array = artistReg.exec(wid);
-			if (matches != null && matches.length==3)
-			{
-				widgetStr = matches[0];
-				//if (widgetStr.indexOf("email_for_media") != -1) widgetCode = "E";
-				artistID = matches[1];
-				widgetID = matches[2];
-				shareURL += artistID + "/" + widgetCode + widgetID; //+ "/" + child2ParentId + "/" + randid();
-				trace("shareURL : " + shareURL);			
-				if (env != null)
-				{
-					shareURL += "/?env=" + env;	
-				}
-				
-				if (fv != null)
-				{
-					if (shareURL.indexOf("/?env=") == -1)
-					{
-						shareURL += "/?" + fv;						
-					}else{
-						shareURL += "&" + fv;						
-					}
-				}
-				trace("PARSEGIGDET: " + shareURL);
-				
-				return shareURL;
-			} else {
-				return null;
-			}
+			
+			return matches;
 		}
+		
+		private static function getArtistId( wid ) : String
+		{
+			var artistId : String = "";
+			var ids : Array = parseIds(wid);
+			if (ids != null && ids.length==3)
+			{
+				artistId = ids[1];
+			}
+			return artistId;
+		}
+		
+		private static function getWidgetId( wid ) : String
+		{
+			var widgetId : String = "";
+			var ids : Array = parseIds(wid);
+			if (ids != null && ids.length==3)
+			{
+				widgetId = ids[2];
+			}
+			return widgetId;
+		}
+		
+		
+	
+		
+
+
 		
 		/**
 		 * Implements the AwesmService to shorten the length of the url 
@@ -159,7 +208,7 @@ package com.topspin.common.utils {
 		 * @param platformURL
 		 * 
 		 */		
-		private static function generateAwesmAndLaunch( longURL : String  , platform : String, platformURL : String = null, api_key : String = null, params : Object = null) : void
+		private static function generateAwesmAndLaunch( longURL : String  , platform : String,  platformURL : String = null, api_key : String = null, params : Object = null) : void
 		{
 			platformURL += "AWESM_TARGET";
 			if (platform == PLATFORM_MYSPACE) platformURL += "&l=3"; 
@@ -182,6 +231,23 @@ package com.topspin.common.utils {
 			launchPlatform(awsm, platform);
 			return;
 		}
+		
+//		private static function genAwesm() : String{
+//			var awsm : String = "http://create.awe.sm/url/share?api_key="+api_key+"&version=1";
+//			if (params != null){
+//				for (var p : String in params)
+//				{
+//					if (params[p] != null && params[p] != "null")
+//					{
+//						awsm += "&" + p + "=" + params[p];
+//					}
+//				} 
+//			}			
+//			awsm += "&target=" + longURL;			
+//		}
+		
+		
+		
 		/**
 		 * Calls navigateToUrl to a specified target 
 		 * @param target
@@ -191,22 +257,58 @@ package com.topspin.common.utils {
 		private static function launchPlatform( target : String, platform : String) : void
 		{
 			try {
-				trace("FINAL : launchPlatform: " + target  + " to: " + platform);
-				navigateToURL(new URLRequest(target), "_blank");
+				trace("FINAL : launchPlatform: \n" + target  + " To: \n" + platform);
+				if (platform == PLATFORM_EMAIL) {
+//					navigateToURL(new URLRequest(target));
+					sendToURL(new URLRequest(target));	
+				}else{
+					navigateToURL(new URLRequest(target), "_blank");
+				}
 			} catch (e:Error) {
 				trace("Error encoding " + platform + " URL: " + e);
 			}			
 		}
 		
-		//Util method to generate random 8 character digit for use as a CHILD id
-		private static function randid() : String
+		/**
+		 * Construct a valid url to the widget landing page including the child id which gets passed on as a  
+		 * @param wid
+		 * @param artistName
+		 * @param type
+		 * @param env
+		 * @param fv - flash vars with a | delimiter and - marks for equality signs
+		 * @return 
+		 * 
+		 */		
+		public static function parseGidgetId( wid : String, artistName : String, baseurl : String, 
+											  env : String = null, fv : String = null) : String 
 		{
-		    var key:String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-		    var idStr:String = key.substr(int(Math.random()*26),1);
-		    for (var i = 0; i < 7; ++i)
-		        idStr += key.substr(int(Math.random()*36),1);
-		    return idStr;
-		}		
+			var shareURL : String = baseurl + "store/";
+			var artistID : String;
+			var widgetID : String;
+			
+			var artist : String = "artist";
+			trace("artist name : " + artist, wid);
+			shareURL += artist + "/";
+			var matches : Array = parseIds(wid);
+			if (matches != null && matches.length==3)
+			{
+				artistID = matches[1];
+				widgetID = matches[2];
+				trace("artistId : " + artistID);
+				trace("widgetId : " + widgetID);
+				shareURL += artistID + "?wId="  + widgetID;
 				
+				if (fv != null)
+				{
+					shareURL += "&" + fv;						
+				}
+				trace("PARSEGIGDET: " + shareURL);
+				
+				return shareURL;
+			} else {
+				return null;
+			}
+		}			
+						
 	}
 }

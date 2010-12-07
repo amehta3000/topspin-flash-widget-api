@@ -181,8 +181,8 @@ package com.topspin.email.controls
 			if (styles.getHAlign() == "left") emailHolderX = styles.getHPadding();						
 			emailHolder.x = emailHolderX; //(halign=="center") ? (_width - emailHolder.width)/2:dm.getHPadding;		
 			
-			if (dm.collectDOB())
-			{
+//			if (dm.collectDOB())
+//			{
 				dobControl = new DOBControl(MINI_MODE);
 				dobControl.addEventListener(DOBControl.DOB_SUBMITTED, handleDob);
 				dobControl.addEventListener(MessageStatusEvent.TYPE, handleDisplayStatus);
@@ -192,7 +192,7 @@ package com.topspin.email.controls
 				dobControl.alpha = 0;
 				addChild(dobControl);
 				_clips.push(dobControl);				
-			}
+//			}
 			
 			if(!dm.getDisplayInitialScreen()) {
 				ctaBtn.alpha = 0;
@@ -353,7 +353,13 @@ package com.topspin.email.controls
 					trace("E4M Underage fail: " + e.message);
 					displayStatus(e.message, true);
 					_isSubmitting = false;
-					break;						
+					break;				
+				case E4MEvent.DOB_NULL_BUT_REQUIRED:
+					trace("E4M Collect DOB: " + e.message);
+					displayStatus(e.message, true);
+					_isSubmitting = false;
+					showState(DOB_STATE);
+					break;					
 			}
 		}				
 		

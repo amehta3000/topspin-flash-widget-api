@@ -21,6 +21,7 @@ package com.topspin.api.events
 		public static var EMAIL_SUCCESS : String = "email_success";  
 		public static var EMAIL_ERROR : String = "email_error"; 
 		public static var UNDERAGE_ERROR : String = "underage_error"; 
+		public static var DOB_NULL_BUT_REQUIRED : String = "dob_required";
 		
 		private var _data : Object;
 		private var _message : String;

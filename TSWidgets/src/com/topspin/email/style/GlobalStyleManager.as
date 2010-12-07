@@ -178,7 +178,7 @@ package com.topspin.email.style {
 			var hexBody : String = getNumberAsHexString(fontColor);
 			var mainFont : String = getFormattedFontName();
 //			var hexSecondaryFont : String = getNumberAsHexString(secondaryFontColor);
-//			var hexErrColor : String = getNumberAsHexString(errorColor);
+			var hexErrColor : String = getNumberAsHexString(0xcc0000);
 			var infoBody : String = "#ffffff";
 			infoCSS.setStyle("header", {color:infoBody,fontSize:'10', fontFamily : mainFont, fontWeight : 'normal'});
 			infoCSS.setStyle("h1", {color:infoBody,fontSize:'14', fontFamily : mainFont, fontWeight : 'bold'});
@@ -196,7 +196,7 @@ package com.topspin.email.style {
 			optionsCSS.setStyle("body", {color:hexLink,fontSize:'10', fontFamily : mainFont, fontWeight : 'normal'});	
 
 			headerCSS.setStyle("hdr", {color:hexBody,fontSize:'12', fontFamily : mainFont, fontWeight : 'normal'});
-//			headerCSS.setStyle("error", {color:hexErrColor,fontSize:'10', fontFamily : mainFont.fontName, fontWeight : 'normal'});
+			headerCSS.setStyle(".error", {color:hexErrColor,fontSize:'10', fontFamily : mainFont, fontWeight : 'normal'});
 			headerCSS.setStyle(".status", {color:hexBody,fontSize:'11', fontFamily : mainFont, fontWeight : 'bold'});
 			headerCSS.setStyle("title", {color:hexLink,fontSize:'12', fontFamily : mainFont, fontWeight : 'bold'});				
 			headerCSS.setStyle("body",{color:hexBody,fontSize:'10', fontFamily : mainFont, fontWeight : 'normal' });			

@@ -9,7 +9,6 @@ package com.topspin.redeem
 	import fl.motion.easing.Cubic;
 	import fl.transitions.TweenEvent;
 	
-	import flash.display.SimpleButton;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.FocusEvent;
@@ -49,6 +48,11 @@ package com.topspin.redeem
 		private var _fontName : String;
 		private var _bgColor : Number;
 		private var _bgAlpha : Number;
+		private var _buttonCorners : Number;
+		private var _buttonFill : Boolean;
+		private var _linkColor : Number;
+		private var _linkOverColor : Number;
+		private var _buttonLabel : String = "Redeem";
 		
 		//Validation
 		private var _isSubmitting : Boolean = false;
@@ -67,6 +71,7 @@ package com.topspin.redeem
 		//Properties
 		private var PAD : Number = 4;		
 		private var _dlink : String;
+		private var _linkLabel : String;
 		
 		//States
 		private var REDEEM_STATE : String = "redeemer";
@@ -100,16 +105,26 @@ package com.topspin.redeem
 										  errorColor : Number = 0xff0000,
 										  fontName : String = "LucidaGrandeFont",
 										  bgColor : Number = 0xffffff,
-										  bgAlpha : Number = 1) {
+										  bgAlpha : Number = 1,
+										  linkColor : Number = 0x00A1FF,
+										  linkOverColor : Number = 0xffffff,
+										  buttonCorners : Number = 4,
+										  buttonFill : Boolean = false,
+										  buttonLabel : String = "Redeem") {
 			_width = w;
 			_height = h;
 			_widgetId = widget_id;
 			_fontColor = fontColor;
 			_highlightColor = highlightColor;
+			_linkColor = linkColor;
+			_linkOverColor = linkOverColor;
 			_errColor = errorColor;
 			_fontName = fontName;
 			_bgColor = bgColor;
 			_bgAlpha = bgAlpha;
+			_buttonCorners = buttonCorners;
+			_buttonFill = buttonFill;
+			_buttonLabel = buttonLabel;
 			init();
 			createChildren();
 		}
@@ -142,15 +157,21 @@ package com.topspin.redeem
 			var btnOverFormat : TextFormat = new TextFormat();
 			btnFormat.font = _fontName;
 			btnFormat.size = btnFontSize;
-			btnFormat.color = _highlightColor;
+			btnFormat.color = _linkColor;
 			btnFormat.bold = true;
 			
 			btnOverFormat.font = _fontName;
 			btnOverFormat.size = btnFontSize;
-			btnOverFormat.color = _fontColor;
+			btnOverFormat.color = _linkOverColor;
 			btnOverFormat.bold = true;
-						
-			submitBtn = new SimpleLinkButton("Redeem", btnFormat, btnOverFormat, null, true, 3,2, 14, "center",1,true,0); 
+
+			if (_buttonFill)
+			{
+				submitBtn = new SimpleLinkButton(_buttonLabel, btnOverFormat, btnFormat, null, true, 3,2, _buttonCorners, "center",1,true,1,1);
+				submitBtn.borderOverColor = _linkColor;
+			}else{
+				submitBtn = new SimpleLinkButton(_buttonLabel, btnFormat, btnOverFormat, null, true, 3,2, _buttonCorners, "center",1,true,1); 				
+			}
 			reedemHolder.addChild(submitBtn);
 			
 			var codeFormat : TextFormat = new TextFormat();
@@ -205,6 +226,33 @@ package com.topspin.redeem
 			configureListeners();
 			showState(REDEEM_STATE);
 		}
+		
+		private function draw() : void
+		{
+			var w = (_width - submitBtn.getWidth() - PAD - 4);
+			codeTxt.width = w;			
+			codeTxt.x = 1;
+			submitBtn.x = _width - submitBtn.getWidth() - 3;
+			submitBtn.y = 1;
+			codeTxt.y = 3;
+			linkTxt.x = 1;
+			linkTxt.y = 3;			
+		}
+		
+		public function setLinkLabel(linkLabel : String = null ) : void
+		{
+			trace("Set link label: " + linkLabel);
+			_linkLabel = linkLabel;
+		}
+		
+		public function setButtonLabel( buttonLabel : String = "Redeem")  : void
+		{
+			_buttonLabel = buttonLabel;
+			submitBtn.text = _buttonLabel;
+			draw();
+			
+		}
+		
 		/**
 		 * Configures listeners 
 		 * 
@@ -221,7 +269,8 @@ package com.topspin.redeem
 		 */		
 		private function setDownloadLink( link : String ) : void
 		{
-			var link : String = "<a href='" + link + "'>" + link + "</a>";	
+		 	var label : String = (!_linkLabel) ? link : _linkLabel;
+			var link : String = "<a href='" + link + "'>" + label + "</a>";	
 			linkTxt.htmlText = link;
 		}
 		/**

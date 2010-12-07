@@ -22,7 +22,7 @@ package com.topspin.email.dialogs
 	public class SocialDialog extends Sprite
 	{
 		private var ICON_PATH : String = "/widgets/assets/icons/";
-		private var ICON_MAP : Array = ["Facebook","MySpace", "Twitter", "Digg", "Delicious"];
+		private var ICON_MAP : Array = ["Facebook","MySpace", "Twitter"]; //, "Digg", "Delicious"];
 		public var closeBtn : SimpleLinkButton;
 		protected var titleStr : String = "Share this Widget";;
 		
@@ -183,13 +183,13 @@ package com.topspin.email.dialogs
 			var y1 : Number = 0;
 			var initX : Number;
 			
-			var PAD : Number = (MINI_MODE) ? 1 : 4;
+			var PAD : Number = (MINI_MODE) ? 2 : 4;
 			var icon : Sprite;			
-			var rows : Number = (MINI_MODE) ? 2 : 3;
-			if (_width<250) rows = 3;
-			var offset : Number = (MINI_MODE) ? -1 : -10;
+			var rows : Number = (MINI_MODE) ? 2 : 2;
+			if (_width<250) rows = 2;
+			var offset : Number = (MINI_MODE) ? -1 : -6;
 			var count : Number = 0;
-			trace("RESTRICTEDL: " + RESTRICTED_MODE + " MINIMODE: " + MINI_MODE + " offset: " + offset);
+			trace("RESTRICTED: " + RESTRICTED_MODE + " MINIMODE: " + MINI_MODE + " offset: " + offset);
 			if (!RESTRICTED_MODE)
 			{
 				for (var i : Number=0; i<icons.length; i++)
@@ -217,10 +217,10 @@ package com.topspin.email.dialogs
 						y1 = 0;
 						x1 = icon.x + initX + PAD*4;
 					}
-					if (i == icons.length-3 && MINI_MODE && rows==2) 
-					{ 
-						x1 -= PAD*4;
-					}
+//					if (i == icons.length-3 && MINI_MODE && rows==2) 
+//					{ 
+//						x1 -= PAD*4;
+//					}
 
 				}			
 			}

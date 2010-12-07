@@ -177,7 +177,7 @@ package com.topspin.common.controls {
 		 */		
 		public function configureListeners():void {  // Listeners are added in this way because the configureListeners method will be called again after the Flickr images are located
 
-			if (!slideData || slideData.length <=1 ) return;
+			if (!slideData || slideData.length <1 ) return;
 						
 			if(!slideShowTimer.hasEventListener(TimerEvent.TIMER)) { slideShowTimer.addEventListener(TimerEvent.TIMER, nextSlide) };
 
@@ -339,6 +339,10 @@ package com.topspin.common.controls {
 		{
 			slideShowRate = seconds;
 			if (slideShowTimer) slideShowTimer.delay = slideShowRate*1000;
+		}
+
+		public function enableButtons():void {
+			prevBtn.visible = nextBtn.visible = true;
 		}
 		
 		public function disableButtons():void {

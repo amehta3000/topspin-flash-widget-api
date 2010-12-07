@@ -301,7 +301,7 @@ package com.topspin.email.data {
 		 */		
 		private function registerWidgetId(wid : String) : void
 		{
-			_tsWidget.registerWidgetId(wid, EventLogger.getInstance().enabled, TSApplications.E4M);			
+			_tsWidget.registerWidgetId(wid, !_isPreview, TSApplications.E4M);			
 		}
 		/**
 		 * Error handler on the load of the widget api  
@@ -321,7 +321,7 @@ package com.topspin.email.data {
 			//create the instance of the TSEmailAdapter and add listeners
 			//Add listeners
 			_tsWidget.addEventListener(TSWidgetEvent.WIDGET_LOAD_COMPLETE, handleWidgetEvent);
-			_tsWidget.addEventListener(TSWidgetEvent.WIDGET_LOAD_ERROR, handleWidgetEvent);
+//			_tsWidget.addEventListener(TSWidgetEvent.WIDGET_LOAD_ERROR, handleWidgetEvent);
 			_tsWidget.addEventListener(TSWidgetEvent.WIDGET_ERROR, handleWidgetEvent);
 			
 			//Playlist load
@@ -334,6 +334,7 @@ package com.topspin.email.data {
 			_tsWidget.addEventListener(E4MEvent.EMAIL_SUCCESS, listenerFunc);
 			_tsWidget.addEventListener(E4MEvent.EMAIL_ERROR, listenerFunc);
 			_tsWidget.addEventListener(E4MEvent.UNDERAGE_ERROR, listenerFunc);
+			_tsWidget.addEventListener(E4MEvent.DOB_NULL_BUT_REQUIRED, listenerFunc);
 //			_tsWidget.addEventListener(E4MEvent.UNDERAGE_ERROR, handleE4MEvent);
 		}
 		
@@ -355,7 +356,7 @@ package com.topspin.email.data {
 				dispatchEvent(new Event(DataManager.DATA_LOAD_SUCCESS, true));			
 			}			
 			
-			if( this._height > 100) {
+			if( this._height > 150) {
 				trace("PARSE THE IMAGES");
 				parseImages();
 			}			
@@ -383,87 +384,7 @@ package com.topspin.email.data {
 			
 			_inited = true;
 		}
-		
-//		private function handleConfigLoaded(e:Event):void {
-//			trace("DataManager.handleConfigLoaded");
-//			//Set up coppa compliance
-//			_coppaCompliance = new COPPAComplianceValidation();
-//			
-//			// Assign and cleanup
-//			_widgetDataXML = new XML(e.target.data);
-//			e.target.removeEventListener(Event.COMPLETE,handleConfigLoaded);
-//			e.target.removeEventListener(IOErrorEvent.IO_ERROR, errorHandler);	
-//			
-//			// Check the widget status
-//			if (_widgetDataXML.campaign) {
-//				setWidgetStatus(Number(_widgetDataXML.campaign.status)); 
-//			} else {
-//				setWidgetStatus(STATUS_UNPUBLISHED);
-//			}
-//			
-//			// Widget UI
-//			_headlineMsg = _widgetDataXML.message;
-//			_offerBtnLabel = _widgetDataXML.offer_button_label;
-//			_sharing = (_widgetDataXML.sharing.length()) ? (_widgetDataXML.sharing=="true") : _sharing;
-//			
-//			// Widget Data
-//			_artistId = _widgetDataXML.campaign.artist.id;
-//			_campaignId = _widgetDataXML.campaign.id;		
-//			_confirmationTarget = _widgetDataXML.confirmation_target;
-//			
-//			//_offerURL = _widgetDataXML.offer_url;
-//			
-//			EventLogger.setCampaign(_campaignId);
-//			
-//			var refURL : String = EventLogger.getPageURL();
-//			if (refURL != null)
-//			{
-//				_referringURL = refURL;
-//			}else{
-//				_referringURL = _widgetDataXML.parent_page_url;
-//				EventLogger.setPageURL(_referringURL);
-//			}
-//			
-//			// Flickr Information
-//			if (_widgetDataXML.flickr.length()) {
-//				_flickrID = _widgetDataXML.flickr.flickr_id;			
-//				_flickrTags = _widgetDataXML.flickr.flickr_tags;			
-//			}	
-//
-//			var wid : String = getFullWidgetId();
-//			if (wid.indexOf("qa1") != -1)
-//			{
-//				_env = SocialUtils.ENV_QA1;
-//			} 			
-//			if (wid.indexOf("qa2") != -1)
-//			{
-//				_env = SocialUtils.ENV_QA2;
-//			} 
-//			if (wid.indexOf("qa3") != -1) {
-//				_env = SocialUtils.ENV_QA3;
-//			} 			
-//			if (wid.indexOf("qa.cdn") != -1) {
-//				_env = SocialUtils.ENV_QA;
-//			}
-//			if (wid.indexOf("preprod") != -1 || wid.indexOf("pp.cdn") != -1) {
-//				_env = SocialUtils.ENV_PP;
-//			}				
-//			
-//			//Only if it is sony, check that COPPA compliance bit
-//			if ( isSonyCheckReqired() ) {
-//				checkCOPPACompliance();
-//			} else {
-//				dispatchEvent(new Event(DataManager.DATA_LOAD_SUCCESS, true));			
-//			}
-//			
-//			if( this._height > 100) {
-//				trace("PARSE THE IMAGES");
-//				parseImages();
-//			}
-//			
-//		}		
-		
-		
+
 		////////////////////////////////////////////////////
 		//
 		// Event Handlers
@@ -482,30 +403,29 @@ package com.topspin.email.data {
 					//Widget registered, pull the camapaign_id 
 					//so that you can use multiple campaigns with
 					//single ITSWidget instance
-					
-					
-					
+					trace("LOADED: isE4MEmailOnly ==== " + _tsWidget.isE4MEmailOnly());
 					init();
 					break;
 				
-				case TSWidgetEvent.WIDGET_LOAD_ERROR:
-					trace("TSWidgetEvent.WIDGET_LOAD_ERROR: Widget swf failed to load.");
-					dispatchEvent(new Event(DataManager.DATA_LOAD_ERROR, true));
+				case TSWidgetEvent.WIDGET_ERROR:
+					trace("TSWidgetEvent.WIDGET_ERROR: Widget swf failed to load. KILL it");
+					_app.displayErrorView(e.message);
+//					dispatchEvent(e);
+//					dispatchEvent(new Event(DataManager.DATA_LOAD_ERROR, true));
 					break;
 				
 				case TSWidgetEvent.PLAYLIST_READY:
 					_playlist = _tsWidget.getPlaylist(_tsWidget.getCampaignId());
-								
-
 					trace("TSWidgetEvent.PLAYLIST_READY: Number Tracks: " + _playlist.getTotalTracks());
 
-					//					playlist = _tsWidget.getPlaylist(_tsWidget.getCampaignId());
+					//playlist = _tsWidget.getPlaylist(_tsWidget.getCampaignId());
 //					//MUST ADD THIS MEDIAEVENT LISTENER TO LISTEN TO MEDIA EVENTS
 //					playlist.addMediaEventListener( onMediaEventHandler );
 //					setupPlayer();
 					dispatchEvent(new TSWidgetEvent(TSWidgetEvent.PLAYLIST_READY));
 					break;
 			}
+			
 		}		
 		
 				
@@ -521,30 +441,6 @@ package com.topspin.email.data {
 			var tsData : XML = _tsWidget.widgetData();
 			return (tsData.media && tsData.media.length());
 		}
-		
-//		/**
-//		 * Loads the widget data 
-//		 * 
-//		 */		
-//		public function loadConfig():void {
-//			var loader:URLLoader = new URLLoader();
-//				loader.dataFormat = URLLoaderDataFormat.TEXT;
-//				loader.addEventListener(Event.COMPLETE, handleConfigLoaded);
-//				loader.addEventListener(ProgressEvent.PROGRESS, traceProgress);
-//				loader.addEventListener(IOErrorEvent.IO_ERROR, errorHandler);
-//			try {
-//				trace("Try to load config:" );
-//				loader.load(new URLRequest(_widgetID));
-//				
-//			} catch (err:SecurityError) {
-//				trace("Email Widget Data:: Security error occurred:" + err);
-//				dispatchEvent(new Event(DataManager.DATA_LOAD_ERROR, true));
-//			}
-//		}
-		
-//		private function traceProgress(e:ProgressEvent):void {
-//			trace("Progress is being made!! - " + e);
-//		}
 
 		public function getCoppaState() : String
 		{
@@ -592,12 +488,17 @@ package com.topspin.email.data {
 				_coppaCompliance.removeEventListener(COPPAComplianceValidation.TYPE_COPPA_COMPLIANCE_FAILED, handleCOPPA);
 				
 				_coppaState = e.type;
+				
+				if (_coppaState == COPPAComplianceValidation.TYPE_COPPA_COMPLIANCE_PASSED)
+				{
+					trace("COPPA PASS, set age");
+					setDOB(_coppaCompliance.dob);
+				}
+				
 				trace("_coppaState: " + _coppaState);
 				
 				dispatchEvent(new Event(DataManager.DATA_LOAD_SUCCESS, true));				
 			}
-			
-
 		}
 		
 		/**
@@ -637,9 +538,6 @@ package com.topspin.email.data {
 				if(e.type == Event.COMPLETE) {
 					myImageParser.removeEventListener(Event.COMPLETE, handleImages);
 				}
-//				} else {
-//					dispatchEvent(new Event(DataManager.SLIDESHOW_INIT, true));
-//				}
 			}			
 			function handleFeedComplete( e:Event):void {
 				myImageParser.removeEventListener(ImageDataParser.FLICKR_PHOTO_COMPLETE, handleImages);
@@ -810,6 +708,7 @@ package com.topspin.email.data {
 		 */		
 		public function setDOB( dob : Date) : void
 		{
+			trace("set dob: " + dob);
 			_dob = dob;	
 		}
 		/**
@@ -819,6 +718,7 @@ package com.topspin.email.data {
 		 */		
 		public function getDOB() : Date
 		{
+			trace("getDOB: " + _dob);
 			return _dob;
 		}
 		/**
@@ -1008,15 +908,17 @@ package com.topspin.email.data {
 		 */		
 		public function submitE4M( email : String, dob : Date = null ) : void {
 			trace("DOB : " + dob);
+			if (!dob) dob = getDOB();
 			tsWidget.submitE4MEmail(_campaignId, email,tsWidget.getE4MConfirmationTarget(_campaignId), dob );
 		}
 		
 		public function getSuccessMessage():String { 
 			var data : String = _successMessage;
+
 			if (_tsWidget.isE4MEmailOnly()) {
 				data  = "Check Your Inbox for Confirmation";
 			}			
-			return this._successMessage;
+			return data;
 		}
 		
 		public function getSuccessEmailMessage():String { 
@@ -1157,10 +1059,16 @@ package com.topspin.email.data {
 		{
 			var title : String = "Check this out from " + getArtistName();
 			
-			trace("DATA: sharePlatform : " + title);
 			
 			var create_type : String = "topspin_" + SocialUtils.WIDGET_TYPE_E4M;			
 			var shareURL : String = getProperShareUrl();
+			var fv : String = getFlashVarQueryString("&","="); //("|","-");
+			if (fv.length>0){
+				fv += "&w="+_embedwidth+"&h="+_embedheight;
+			}else {
+				fv = "w="+_embedwidth+"&h="+_embedheight;
+			}
+			trace("FV : " + fv);
 			switch (platform) 
 			{
 				case SocialUtils.PLATFORM_FACEBOOK:
@@ -1169,22 +1077,19 @@ package com.topspin.email.data {
 					//FBShare is specific to Topspin widgets only,
 					//Any third party widgets will be be shared in the 
 					//same fashion.
-					var fv : String = getFlashVarQueryString("|","-");
-					if (fv.length>0){
-						fv = "fv=" + fv;
-						fv += "&w="+_embedwidth+"&h="+_embedheight;
-					}else {
-						fv = "w="+_embedwidth+"&h="+_embedheight;
-					}
-					SocialUtils.shareFacebook(getFullWidgetId(), getArtistName(), getAppBaseId(), getAwesmParentId(), create_type, _env, getAwesmAPIKey(), fv);
+					SocialUtils.shareMyOrFb(SocialUtils.PLATFORM_FACEBOOK,getFullWidgetId(), getArtistName(), getAppBaseId(), getAwesmParentId(), create_type, _env, getAwesmAPIKey(), fv);
+					
+//					SocialUtils.shareFacebook(getFullWidgetId(), getArtistName(), getAppBaseId(), getAwesmParentId(), create_type, _env, getAwesmAPIKey(), fv);
 					EventLogger.fire(TSEvents.TYPE.SHARE,{campaign:getCampaignId(), sub_type : TSEvents.SUBTYPE.SHARE_FACEBOOK});
 					break;
 				case SocialUtils.PLATFORM_MYSPACE:
-					SocialUtils.shareMySpace(shareURL,title,getEmbedCode(), getAwesmParentId(), create_type, getAwesmAPIKey());
+					SocialUtils.shareMyOrFb(SocialUtils.PLATFORM_MYSPACE,getFullWidgetId(), getArtistName(), getAppBaseId(), getAwesmParentId(), create_type, _env, getAwesmAPIKey(), fv);
+
+//					SocialUtils.shareMySpace(shareURL,title,getEmbedCode(), getAwesmParentId(), create_type, getAwesmAPIKey());
 					EventLogger.fire(TSEvents.TYPE.SHARE,{campaign:getCampaignId(), sub_type : TSEvents.SUBTYPE.SHARE_MYSPACE});
 					break;
 				case SocialUtils.PLATFORM_TWITTER:
-					SocialUtils.shareTwitter(shareURL,title, getAwesmParentId(), create_type, getAwesmAPIKey(),_twthash);				
+					SocialUtils.shareTwitter(getFullWidgetId(), shareURL, title, getAwesmParentId(), create_type, getAwesmAPIKey(),_twthash);				
 					EventLogger.fire(TSEvents.TYPE.SHARE,{campaign:getCampaignId(), sub_type : TSEvents.SUBTYPE.SHARE_TWITTER});
 					break;
 				case SocialUtils.PLATFORM_DIGG:
@@ -1204,7 +1109,7 @@ package com.topspin.email.data {
 		 */		
 		public function getAppBaseId() : String
 		{
-			var id : String = _widgetID; //_widgetDataXML.id;
+			var id : String = tsWidget.getWidgetId(); //_widgetID; //
 			var base : String = id;
 			var regEx : RegExp = new RegExp(/[A-Za-z]+:\/\/[A-Za-z0-9-_]+\.[A-Za-z0-9-_~:.=]+\//g);
 			var matches : Array = regEx.exec(id);

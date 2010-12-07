@@ -34,7 +34,7 @@ package
 	[SWF(frameRate="31", backgroundColor="#000000")]
 	public class TSRedemptionWidget extends Sprite {
 		
-		public var VERSION:String = "R.IGGY.060710";
+		public var VERSION:String = "R.QUEEN.080910";
 		
 		//Properties
 		private var _width:Number = 400;
@@ -47,7 +47,14 @@ package
 		private var errColor : Number = 0xff0000;
 		private var bgColor : Number = 0x000000;
 		private var bgAlpha : Number = 1;
+		private var buttonCorners : Number = 14;
+		private var buttonFill : Boolean = false;
+		private var linkHasOutline : Boolean = true;
+		private var buttonLabel : String = "Redeem";
+		private var linkLabel : String = "Download Now";
 		
+		private var linkOverColor : Number = 0xffffff;
+		private var linkColor : Number = 0x00A1FF;
 		//Data passed in via flashVars
 		private var widget_id : String;
 		
@@ -135,6 +142,7 @@ package
 				fontColor = 0xffffff;
 				errColor = 0xff0000;
 				highlightColor = 0x333333;
+				linkOverColor = 0xffffff;
 			}
 			if (theme == "black")
 			{
@@ -143,6 +151,7 @@ package
 				fontColor = 0xffffff;
 				errColor = 0xff0000;
 				highlightColor = 0x00A1FF;
+				linkOverColor = 0x000000;
 			}
 			
 			//Flash var ui styles
@@ -151,6 +160,14 @@ package
 			bgAlpha = (loaderInfo.parameters.bgAlpha != null ) ? loaderInfo.parameters.bgAlpha:bgAlpha;
 			errColor = (loaderInfo.parameters.errorColor != null ) ? loaderInfo.parameters.errorColor:errColor;
 			highlightColor = (loaderInfo.parameters.highlightColor != null ) ? loaderInfo.parameters.highlightColor:highlightColor;
+			buttonCorners = (loaderInfo.parameters.buttonCorners != null ) ? loaderInfo.parameters.buttonCorners:buttonCorners;
+			buttonFill = (loaderInfo.parameters.buttonFill != null ) ? (loaderInfo.parameters.buttonFill == "true"):buttonFill;
+			linkHasOutline = (loaderInfo.parameters.linkHasOutline == "false") ? false : linkHasOutline;
+			linkColor = (loaderInfo.parameters.linkColor != null) ? loaderInfo.parameters.linkColor : highlightColor;
+			linkOverColor = (loaderInfo.parameters.linkOverColor!= null) ? loaderInfo.parameters.linkOverColor : linkOverColor;
+			buttonLabel = (loaderInfo.parameters.buttonLabel!= null) ? loaderInfo.parameters.buttonLabel : buttonLabel;
+			
+			linkLabel = (loaderInfo.parameters.linkLabel!= null) ? loaderInfo.parameters.linkLabel : linkLabel;
 			
 			//EventLogging, part of  TSAPI, must include TSAPI in your class path
 			EventLogger.setEnv(TSApplications.REDEMPTION_WIDGET, loaderInfo);
@@ -199,12 +216,14 @@ package
 		{
 			var control : RedemptionControl = new RedemptionControl(_width, _height, widget_id,fontColor, 
 				highlightColor, errColor,"LucidaGrandeFont",
-				bgColor, bgAlpha);
+				bgColor, bgAlpha, linkColor, linkOverColor, buttonCorners, buttonFill, buttonLabel);
+			    control.setLinkLabel( linkLabel );
+//				control.setButtonLabel( buttonLabel);
 			addChild(control);
-			
 			//Fire a EventLogger Loaded widget type.
 			EventLogger.fire(TSEvents.TYPE.LOADED,{campaign:widget_id});			
 		}
+		
 		/* Helper Methods */
 		/**
 		 * Test the script access of the flash in where it has
