@@ -47,7 +47,7 @@ package com.topspin.email.validation
 //				if (flushCookie && !checkSonyCookie)
 				if (flushCookie)
 				{
-					updateSavedDOB(new Date(),minAge,checkSonyCookie, flushCookie);
+					updateSavedDOB(new Date(),minAge,checkSonyCookie, true);
 					dispatchCollectDOBEvent();
 					return;
 				}				
@@ -55,6 +55,7 @@ package com.topspin.email.validation
 				//See if ud exists				
 				if ( mySo.data.dob != null)
 				{
+					trace("SO dob found 1: " + _dob);					
 					noCookie = false;
 					_dob = mySo.data.dob;
 					ts = mySo.data.ts;	
@@ -117,16 +118,20 @@ package com.topspin.email.validation
 						}				
 					}
 				}else{
-					noCookie = true;			
-					trace("No Age found -> Check LABEL COPPA->");
-					if (checkSonyCookie)
-					{
-						checkLabelCookie(0);
+					noCookie = true;		
+					trace("NO FLASH COOKIE WAS FOUND, get the DOB");
+					dispatchCollectDOBEvent();
+//					commented 12/16/2010 - Dont' check sony, just get the
+//					the dob now
+//					trace("No Age found -> Check LABEL COPPA->");
+//					if (checkSonyCookie)
+//					{
+//						trace("No Age found -> Check SONY 0->");
+//						checkLabelCookie(0);
+//					}else{
+//						trace("No Age found -> Get the DOB");
 //						dispatchCollectDOBEvent();
-					}else{
-						trace("No Age found -> Get the DOB");
-						dispatchCollectDOBEvent();
-					}
+//					}
 				}
 				
 			} catch (e : Error) {
@@ -134,16 +139,6 @@ package com.topspin.email.validation
 				dispatchCollectDOBEvent();
 			}
 		}				
-		
-		public function get dob() : Date
-		{
-			return _dob;
-		}
-		
-		public function set dob( dob : Date ) : void
-		{
-			_dob = dob;
-		}
 		
 		/**
 		 * Saves the dob in a shared object 
@@ -167,18 +162,25 @@ package com.topspin.email.validation
 				mySo.data.dob = (clearCookie) ? null : birthdate;
 				mySo.data.ts = (clearCookie) ? null : new Date();
 				
+				//Save the Shared Object		
+				trace("store the so: age: " + age);
+				var flushResult:Object = mySo.flush(500);	
+				
+				if (clearCookie) {
+					trace("clear cookie, no need to hit up the label");
+					return;
+				}
+				
 				age = calculateAge(birthdate);
 				//Check the age verses the minAge
 				if (minAge != -1 && age < minAge)
 				{
-					if (updateSonyCookie) {
+					if (updateSonyCookie ) {
 						trace("This is just a child, tell Sony");
 						checkLabelCookie(1);
 					}
-				}
-				//Save the Shared Object		
-				trace("store the so: age: " + age);
-				var flushResult:Object = mySo.flush(500);				
+				}				
+				
 			} catch (e : Error) {
 				trace("Unable to create and retrieve " + COPPA_SHARED_OBJECT);
 			}			
@@ -231,7 +233,8 @@ package com.topspin.email.validation
 					dispatchCollectDOBEvent();
 				}
 			}catch(e : Error){
-				trace("Unabled to decode SONY response");
+				trace("Unabled to decode SONY response, collect DOB");
+				dispatchCollectDOBEvent();
 			}
 			cleanup();
 		}
@@ -273,6 +276,15 @@ package com.topspin.email.validation
 			dispatchEvent(new Event(COPPAComplianceValidation.TYPE_COPPA_COMPLIANCE_COLLECT, true));
 		}
 		
+		public function get dob() : Date
+		{
+			return _dob;
+		}
+		
+		public function set dob( dob : Date ) : void
+		{
+			_dob = dob;
+		}		
 		public function calculateAge(birthdate:Date):Number {
 			var dtNow:Date = new Date();// gets current date
 			var currentMonth:Number = dtNow.getMonth();

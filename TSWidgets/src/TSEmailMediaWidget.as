@@ -33,6 +33,7 @@ package
 	import com.topspin.email.views.E4MPlayerView;
 	import com.topspin.email.views.EmailMediaWidgetView;
 	
+	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.display.StageDisplayState;
 	import flash.events.ContextMenuEvent;
@@ -52,12 +53,12 @@ package
 	import gs.TweenLite;
 
 	[SWF(frameRate="31", backgroundColor="#000000")]
-	public class TSEmailMediaWidget extends Sprite {
+	public class TSEmailMediaWidget extends MovieClip {
 	
 		// Static
-		public static var VERSION:String = "E.HANK.120610";
+		public static var VERSION:String = "E.KINKY.122010p1";
 		public static var FADE_RATE:Number = .3;
-		
+	
 		//Properties 
 		private var baseURL:String;						//base url of where the swf is loaded from
 		private var _width:Number = 400;
@@ -89,7 +90,7 @@ package
 		//Contructor
 		public function TSEmailMediaWidget() {
 			trace("**********VERSION: " + VERSION);
-			Security.allowDomain("*");
+//			Security.allowDomain("*");
 			addEventListener(Event.ADDED_TO_STAGE, handleInit);
 		}
 		
@@ -100,6 +101,7 @@ package
 		 */		
 		private function handleInit( e : Event ) : void
 		{
+			Security.allowDomain("*");
 			removeEventListener(Event.ADDED_TO_STAGE, handleInit);
 			// Set initial stage properties			
 			stage.align = "TL";
